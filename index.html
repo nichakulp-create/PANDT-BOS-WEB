@@ -310,6 +310,11 @@ body.ceo-dashboard .ai-learning-note{margin-top:8px;padding-top:8px;border-top:1
 @media(max-width:1250px){body.ceo-dashboard .ai-v3{grid-template-columns:1fr 1fr}body.ceo-dashboard .ai-v3-panel:last-child{grid-column:1/-1}}
 @media(max-width:760px){body.ceo-dashboard .ai-v3{grid-template-columns:1fr}body.ceo-dashboard .ai-v3-panel:last-child{grid-column:auto}body.ceo-dashboard .ai-sim-grid,body.ceo-dashboard .ai-learning-grid{grid-template-columns:1fr}}
 
+
+.login .linkbtn{border:0;background:transparent;color:#315e91;padding:8px 0;font-weight:750;text-align:left;cursor:pointer}
+.login .recoverybox{margin-top:12px;padding:12px;border:1px solid #d9e3ee;border-radius:10px;background:#f8fbfe;display:none}
+.login .recoverybox.show{display:block}
+.login .recoverybox .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 </style>
 </head>
 <body>
@@ -323,7 +328,17 @@ body.ceo-dashboard .ai-learning-note{margin-top:8px;padding-top:8px;border-top:1
       <label>อีเมล<input id="email" type="email" autocomplete="username" required></label>
       <label>รหัสผ่าน<input id="password" type="password" autocomplete="current-password" required></label>
       <button class="btn primary" type="submit">เข้าสู่ระบบ</button>
+      <button id="forgotPassword" class="linkbtn" type="button">ลืมรหัสผ่าน / ตั้งรหัสผ่านใหม่</button>
       <div id="loginError"></div>
+      <div id="recoveryBox" class="recoverybox">
+        <div id="recoveryIntro" class="small muted">ระบบจะส่งอีเมล Reset Password ไปยังอีเมลที่กรอกด้านบน และพากลับมายังหน้า BOS นี้โดยตรง</div>
+        <div id="recoverySet" class="hidden">
+          <label>รหัสผ่านใหม่<input id="newPassword" type="password" autocomplete="new-password" minlength="10"></label>
+          <label>ยืนยันรหัสผ่านใหม่<input id="newPassword2" type="password" autocomplete="new-password" minlength="10"></label>
+          <div class="buttons"><button id="saveNewPassword" class="btn primary" type="button">บันทึกรหัสผ่านใหม่</button></div>
+        </div>
+        <div id="recoveryStatus" class="small" style="margin-top:8px"></div>
+      </div>
       <div class="notice">ระบบใช้ Supabase Publishable Key ฝั่ง Browser ตามรูปแบบที่ Supabase รองรับ สิทธิ์ข้อมูลถูกบังคับด้วย Row Level Security (RLS) ในฐานข้อมูล</div>
     </form>
   </section>
@@ -487,6 +502,28 @@ body.ceo-dashboard .ai-learning-note{margin-top:8px;padding-top:8px;border-top:1
       if(!state.user)return;
       await api('bos_audit_events',{method:'POST',headers:{Prefer:'return=minimal'},body:{user_id:state.user.id,event_type:eventType,detail:detail||{}}});
     }catch(e){}
+  }
+  async function requestPasswordRecovery(email){
+    var redirect=location.origin+location.pathname;
+    return authFetch('/auth/v1/recover?redirect_to='+encodeURIComponent(redirect),{email:email});
+  }
+  function recoverySessionFromHash(){
+    var raw=(location.hash||'').replace(/^#/,'');if(!raw)return false;
+    var p=new URLSearchParams(raw);
+    if(p.get('type')!=='recovery'||!p.get('access_token'))return false;
+    var s={access_token:p.get('access_token'),refresh_token:p.get('refresh_token')||'',user:null,recovery:true};
+    state.session=s;
+    history.replaceState(null,'',location.pathname+location.search);
+    $('recoveryBox').classList.add('show');
+    $('recoveryIntro').classList.add('hidden');
+    $('recoverySet').classList.remove('hidden');
+    $('recoveryStatus').textContent='ยืนยันลิงก์กู้คืนแล้ว กรุณาตั้งรหัสผ่านใหม่';
+    return true;
+  }
+  async function updateRecoveredPassword(password){
+    if(!state.session||!state.session.access_token||!state.session.recovery)throw new Error('ไม่พบ Recovery Session');
+    var res=await fetch(SUPABASE_URL+'/auth/v1/user',{method:'PUT',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+state.session.access_token,'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({password:password}),credentials:'omit'});
+    return parseResponse(res);
   }
   async function login(email,password){
     var data=await authFetch('/auth/v1/token?grant_type=password',{email:email,password:password});
@@ -887,6 +924,21 @@ body.ceo-dashboard .ai-learning-note{margin-top:8px;padding-top:8px;border-top:1
     $('appScreen').classList.add('hidden');$('loginScreen').classList.remove('hidden');$('password').value='';
   }
 
+  $('forgotPassword').addEventListener('click',async function(){
+    var email=$('email').value.trim();
+    $('recoveryBox').classList.add('show');$('recoveryIntro').classList.remove('hidden');$('recoverySet').classList.add('hidden');
+    if(!email){$('recoveryStatus').textContent='กรุณากรอกอีเมลก่อน';return;}
+    $('recoveryStatus').textContent='กำลังส่งอีเมล...';
+    try{await requestPasswordRecovery(email);$('recoveryStatus').textContent='ส่งอีเมล Reset Password แล้ว กรุณาเปิดลิงก์ในอีเมล ระบบจะกลับมาที่หน้า BOS นี้';}
+    catch(err){$('recoveryStatus').textContent=authErrorThai(err);}
+  });
+  $('saveNewPassword').addEventListener('click',async function(){
+    var a=$('newPassword').value,b=$('newPassword2').value;
+    if(a.length<10){$('recoveryStatus').textContent='รหัสผ่านใหม่ต้องมีอย่างน้อย 10 ตัวอักษร';return;}
+    if(a!==b){$('recoveryStatus').textContent='รหัสผ่านทั้งสองช่องไม่ตรงกัน';return;}
+    try{await updateRecoveredPassword(a);clearSession();$('recoverySet').classList.add('hidden');$('recoveryIntro').classList.remove('hidden');$('recoveryStatus').textContent='ตั้งรหัสผ่านใหม่เรียบร้อย กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่';$('password').value='';}
+    catch(err){$('recoveryStatus').textContent=authErrorThai(err);}
+  });
   $('loginForm').addEventListener('submit',async function(e){
     e.preventDefault();$('loginError').textContent='';$('loginError').className='';
     try{
@@ -939,6 +991,7 @@ body.ceo-dashboard .ai-learning-note{margin-top:8px;padding-top:8px;border-top:1
   });
 
   (async function boot(){
+    if(recoverySessionFromHash()){showLogin();return;}
     if(await restore()){
       showApp();
       try{await loadAll();}catch(e){toast('โหลดข้อมูลไม่สำเร็จ: '+e.message);}
