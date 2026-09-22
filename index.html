@@ -434,8 +434,32 @@ body.ceo-dashboard .ai-learning-note{margin-top:8px;padding-top:8px;border-top:1
   async function parseResponse(res){
     var text=await res.text();var body=null;
     try{body=text?JSON.parse(text):null;}catch(e){body=text;}
-    if(!res.ok){var msg=body&&body.message?body.message:body&&body.error_description?body.error_description:typeof body==='string'?body:'HTTP '+res.status;var err=new Error(msg);err.status=res.status;throw err;}
+    if(!res.ok){
+      var msg=(body&&(
+        body.message||
+        body.error_description||
+        body.msg||
+        body.error||
+        body.error_code||
+        body.code
+      ))||(typeof body==='string'&&body?body:'HTTP '+res.status);
+      var err=new Error(String(msg||('HTTP '+res.status)));
+      err.status=res.status;
+      err.code=body&&String(body.error_code||body.code||body.error||'');
+      err.payload=body;
+      throw err;
+    }
     return body;
+  }
+  function authErrorThai(err){
+    var raw=String((err&&err.message)||'').trim();
+    var code=String((err&&err.code)||'').toLowerCase();
+    var text=(raw+' '+code).toLowerCase();
+    if(/invalid.*login|invalid_credentials|invalid.*credential/.test(text))return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจรหัสผ่านแล้วลองใหม่';
+    if(/email.*not.*confirmed|email_not_confirmed/.test(text))return 'อีเมลนี้ยังไม่ได้ยืนยัน กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
+    if(/rate.*limit|too many|over_email_send_rate_limit/.test(text))return 'มีการร้องขอมากเกินไป กรุณารอสักครู่แล้วลองใหม่';
+    if(/user.*not.*found|user_not_found/.test(text))return 'ไม่พบบัญชีผู้ใช้นี้ในระบบ';
+    return raw?('เข้าสู่ระบบไม่สำเร็จ: '+raw):'เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่';
   }
   async function authFetch(path,body){
     var res=await fetch(SUPABASE_URL+path,{method:'POST',headers:headers(false),body:JSON.stringify(body),credentials:'omit'});
@@ -869,7 +893,7 @@ body.ceo-dashboard .ai-learning-note{margin-top:8px;padding-top:8px;border-top:1
       await login($('email').value.trim(),$('password').value);
       showApp();await loadAll();
     }catch(err){
-      clearSession();$('loginError').className='error';$('loginError').textContent='เข้าสู่ระบบไม่สำเร็จ: '+err.message;
+      clearSession();$('loginError').className='error';$('loginError').textContent=authErrorThai(err);
     }
   });
   $('logout').addEventListener('click',async function(){
