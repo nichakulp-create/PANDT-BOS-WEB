@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://ghpkuhrkxuukztwlgudq.supabase.co; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>P&T BOS Management</title>
+<style>
+:root{--bg:#f4f6f9;--panel:#fff;--ink:#17283b;--muted:#687789;--line:#dde4ec;--navy:#10263b;--orange:#e46d1a;--orange2:#fff0e5;--green:#23745a;--greenbg:#e9f6f0;--amber:#8d6518;--amberbg:#fff5dc;--red:#a83a46;--redbg:#fdecee;--blue:#315e91;--bluebg:#edf4fc;--shadow:0 12px 34px #15293e12}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"Leelawadee UI","Noto Sans Thai",system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #efaa72;outline-offset:2px}
+.hidden{display:none!important}
+.app{min-height:100vh;display:grid;grid-template-columns:230px minmax(0,1fr)}
+.sidebar{background:var(--navy);color:white;padding:24px 16px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:11px;font-size:25px;font-weight:850}
+.logo{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:var(--orange);font-size:15px}
+.brand small{display:block;font-size:9px;letter-spacing:1.3px;color:#afbdcb;font-weight:500}
+.nav{display:grid;gap:6px}
+.nav button{border:0;background:transparent;color:#c7d2df;text-align:left;padding:11px 12px;border-radius:10px}
+.nav button.active{background:#30465e;color:white;border-left:3px solid #ff9d5c}
+.sidebox{margin-top:auto;border:1px solid #395069;border-radius:12px;padding:13px;font-size:11px;color:#cbd6e1}
+.sidebox b{color:white}
+.main{min-width:0}
+.topbar{height:68px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 26px;position:sticky;top:0;z-index:5}
+.userbox{display:flex;align-items:center;gap:10px;font-size:12px}
+.content{padding:26px;max-width:1650px;margin:auto}
+.heading{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:18px}
+h1,h2,h3,p{margin:0} h1{font-size:30px;line-height:1.3} h2{font-size:18px} h3{font-size:15px}
+.eyebrow{font-size:10px;font-weight:850;color:var(--orange);letter-spacing:1.3px;margin-bottom:6px}
+.muted{color:var(--muted)} .small{font-size:12px}
+.btn{border:1px solid #cfd9e4;background:white;color:var(--ink);border-radius:9px;padding:9px 12px;font-weight:700;font-size:12px}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:white}
+.btn.danger{background:var(--red);border-color:var(--red);color:white}
+.btn.ghost{background:transparent;color:inherit}
+.buttons{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.banner{background:#fff4e9;border:1px solid #efc69f;border-radius:13px;padding:13px 15px;margin-bottom:18px;color:#784615;font-size:12px}
+.banner strong{display:block;font-size:13px;margin-bottom:3px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;border-top:3px solid #ecb58b;box-shadow:var(--shadow)}
+.kpi .label{font-size:11px;color:var(--muted);font-weight:700}.kpi .value{font-size:27px;font-weight:850;margin:7px 0 2px;font-variant-numeric:tabular-nums}.kpi .sub{font-size:10px;color:var(--muted)}
+.section{margin-top:18px}
+.card{background:white;border:1px solid var(--line);border-radius:14px;padding:17px;box-shadow:var(--shadow)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:11px}
+table{width:100%;border-collapse:collapse;font-size:12px;background:white}
+th,td{padding:10px 11px;border-bottom:1px solid #edf0f4;text-align:left;vertical-align:top}
+th{background:#f5f7fa;color:var(--muted);font-weight:800;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:850;background:#eef2f6;color:#536477;white-space:nowrap}
+.badge.good{background:var(--greenbg);color:var(--green)}.badge.warn{background:var(--amberbg);color:var(--amber)}.badge.bad{background:var(--redbg);color:var(--red)}.badge.info{background:var(--bluebg);color:var(--blue)}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:end;margin:14px 0}
+.field{display:grid;gap:5px;font-size:11px;color:var(--muted)}
+.field.grow{flex:1;min-width:220px}
+input,select,textarea{border:1px solid #cbd5e0;border-radius:8px;background:white;color:var(--ink);padding:9px 10px;min-width:0}
+textarea{min-height:92px;resize:vertical}
+.issuegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.issue{border:1px solid var(--line);border-left:4px solid #e5a45d;background:white;border-radius:11px;padding:13px}
+.issue.high{border-left-color:var(--red)}.issue.medium{border-left-color:#d99a29}
+.issue .meta{display:flex;justify-content:space-between;gap:8px;align-items:start;margin-bottom:7px}
+.issue p{font-size:11px;color:var(--muted);margin-top:6px}
+.issue .buttons{margin-top:10px}
+.metricgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.metric{border:1px solid var(--line);border-radius:11px;padding:13px;background:#fbfcfd}
+.metric b{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}.metric strong{font-size:18px}
+.empty{text-align:center;padding:36px 16px;border:1px dashed #c8d4df;border-radius:11px;color:var(--muted);font-size:12px}
+.empty strong{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
+.loginwrap{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(135deg,#10263b,#183d5c)}
+.login{width:min(440px,100%);background:white;border-radius:18px;padding:28px;box-shadow:0 25px 70px #001a2f55}
+.login .brand{color:var(--ink);margin-bottom:22px}.login .brand small{color:var(--muted)}
+.login form{display:grid;gap:13px}.login label{display:grid;gap:5px;font-size:12px;color:var(--muted)}
+.login .notice{background:#f7f9fb;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:11px;color:var(--muted)}
+.error{background:var(--redbg);border:1px solid #efb4bb;color:var(--red);border-radius:10px;padding:11px;font-size:12px}
+dialog{border:0;border-radius:15px;padding:0;width:min(680px,92vw);box-shadow:0 30px 90px #0a203755;color:var(--ink)}
+dialog::backdrop{background:#10263b77}
+.modalhead{padding:17px 19px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.modalbody{padding:19px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.formgrid .wide{grid-column:1/-1}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:11px 16px;border-radius:10px;font-size:12px;z-index:99;box-shadow:var(--shadow)}.toast:empty{display:none}
+.loading{opacity:.55;pointer-events:none}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:13px}
+@media(max-width:1100px){.grid4,.metricgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.issuegrid{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+@media(max-width:760px){.app{display:block}.sidebar{position:static;height:auto;padding:14px;gap:13px}.brand{font-size:21px}.logo{width:36px;height:36px}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap}.sidebox{display:none}.topbar{position:static;height:auto;padding:12px 14px;align-items:flex-start}.content{padding:18px 13px}.heading{display:block}h1{font-size:25px}.heading .buttons{margin-top:12px}.grid4,.metricgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.formgrid{grid-template-columns:1fr}.formgrid .wide{grid-column:auto}}
+@media(max-width:420px){.grid4,.metricgrid{grid-template-columns:1fr}.topbar{display:block}.userbox{margin-top:8px}}
+
+/* CEO-inspired executive workspace: derived from the frozen CEO baseline visual language,
+   rebuilt for the native Supabase BOS contract. */
+.ceo-dashboard .heading{display:none}
+.ceo-dashboard .content{max-width:1720px;padding-top:22px}
+.ceo-hero{position:relative;overflow:hidden;background:linear-gradient(110deg,#ecf3ff 0%,#f8faff 54%,#edf8f8 100%);border:1px solid #dae7f8;border-radius:19px;min-height:174px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:20px;box-shadow:0 10px 30px #23456c0a}
+.ceo-hero h1{font-size:31px;letter-spacing:-.7px;color:#123668;margin:7px 0}
+.ceo-hero p{font-size:13px;color:#4c6688;max-width:740px;line-height:1.8}
+.ceo-hero-art{width:260px;height:128px;flex:0 0 260px}
+.ceo-hero-tags{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.ceo-hero-tags span{padding:4px 10px;background:#ffffffc7;color:#42668e;border:1px solid #d5e2f5;border-radius:20px;font-size:11px}
+.ceo-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:20px 0 10px}
+.ceo-domain{position:relative;--dc:#225ccc;--soft:#eaf2ff;background:var(--soft);border:1px solid color-mix(in srgb,var(--dc) 16%,white);border-radius:15px;padding:18px;min-height:170px;box-shadow:0 5px 16px #25406808;display:flex;flex-direction:column;gap:7px;transition:.15s}
+.ceo-domain:hover{transform:translateY(-3px);box-shadow:0 9px 22px #23456c12;border-color:var(--dc)}
+.ceo-domain:not(:last-child):after{content:'›';position:absolute;right:-13px;top:44%;font-size:24px;color:#a4b8cf;z-index:1}
+.ceo-domain-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ceo-domain-name{font-size:14px;font-weight:800;color:var(--dc)}
+.ceo-icon{width:36px;height:36px;display:grid;place-items:center;background:#ffffffb5;border-radius:10px;color:var(--dc);font-weight:900}
+.ceo-domain-value{font-size:25px;font-weight:800;letter-spacing:-.4px;color:#16345a;margin-top:7px;overflow-wrap:anywhere}
+.ceo-domain-caption{font-size:11px;color:#526b87;line-height:1.6;min-height:35px}
+.ceo-domain-foot{margin-top:auto;padding-top:7px;border-top:1px solid #ffffffa8;font-size:10px;color:var(--dc);display:flex;justify-content:space-between}
+.ceo-note{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 18px;font-size:11px;color:#657a94;flex-wrap:wrap}
+.ceo-legend{display:flex;gap:13px;flex-wrap:wrap}.ceo-legend span{display:inline-flex;gap:6px;align-items:center}.ceo-dot{width:7px;height:7px;border-radius:50%;background:#22a06b}.ceo-dot.warn{background:#e7981e}.ceo-dot.bad{background:#d64358}.ceo-dot.missing{background:#8998ae}
+.ceo-chart-grid{display:grid;grid-template-columns:1.05fr 1.05fr .8fr;gap:15px;margin-bottom:22px}
+.ceo-chart{padding:19px;background:#fff;border:1px solid #e0e8f2;border-radius:15px;min-width:0;box-shadow:0 5px 17px #213a5b08}
+.ceo-chart h2{font-size:15px;color:#183965}.ceo-chart .sub{font-size:11px;color:#627793;margin:5px 0 14px}
+.ceo-bars{display:grid;gap:13px}.ceo-bar-row{display:grid;grid-template-columns:96px 1fr 78px;gap:9px;align-items:center;font-size:11px}.ceo-track{height:10px;border-radius:8px;background:#edf2f8;overflow:hidden}.ceo-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#4c8fe8,#69b4ef)}.ceo-bar-row b{text-align:right;color:#476181;font-size:11px}
+.ceo-health{display:grid;grid-template-columns:115px 1fr;gap:16px;align-items:center}.ceo-ring{--pct:50;width:112px;height:112px;border-radius:50%;background:conic-gradient(#4e8fe7 calc(var(--pct)*1%),#e9eef5 0);display:grid;place-items:center}.ceo-ring:after{content:'';width:79px;height:79px;background:white;border-radius:50%;position:absolute}.ceo-ring{position:relative}.ceo-ring strong{position:relative;z-index:1;font-size:21px;color:#254a77}.ceo-health-list{display:grid;gap:9px;font-size:11px}.ceo-health-list div{display:flex;justify-content:space-between;gap:10px}
+.ceo-capacity-big{font-size:39px;font-weight:850;color:#4267b7;letter-spacing:-1px}.ceo-capacity-meter{height:12px;background:#edf2f8;border-radius:8px;overflow:hidden;margin:12px 0}.ceo-capacity-meter span{display:block;height:100%;background:linear-gradient(90deg,#8c6de7,#5fa7e8)}
+.ceo-section{margin:24px 0}.ceo-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.ceo-section-label{display:flex;gap:11px;align-items:center}.ceo-section-number{display:grid;place-items:center;width:32px;height:32px;font-weight:800;font-size:13px;color:#275ea7;background:#eaf2ff;border-radius:10px}.ceo-section-title h2{font-size:19px;color:#1c385e}
+.ceo-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}.ceo-kpi{position:relative;border:1px solid #dfe7f1;border-radius:13px;background:#fff;min-height:182px;padding:17px;display:flex;flex-direction:column;box-shadow:0 3px 10px #20395906}.ceo-kpi:before{content:'';position:absolute;top:0;left:17px;right:17px;height:3px;background:#4f8cd8;border-radius:0 0 5px 5px;opacity:.7}.ceo-kpi-head{display:flex;justify-content:space-between;gap:6px;font-size:12px;color:#1b365b}.ceo-kpi-value{font-size:22px;font-weight:800;color:#193d6a;margin:18px 0 5px}.ceo-kpi-context{font-size:11px;color:#607896;line-height:1.6}.ceo-kpi-foot{display:flex;justify-content:space-between;gap:6px;border-top:1px solid #edf1f7;margin-top:auto;padding-top:10px;color:#7184a0;font-size:10px}
+.ceo-action-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:15px}.ceo-panel{background:white;border:1px solid #dfe7f1;border-radius:15px;padding:18px;box-shadow:0 5px 17px #213a5b08}.ceo-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.ceo-panel-head h2{font-size:17px;color:#1c385e}
+@media(max-width:1250px){.ceo-flow{grid-template-columns:repeat(3,minmax(0,1fr))}.ceo-domain:after{display:none}.ceo-chart-grid{grid-template-columns:1fr 1fr}.ceo-chart-grid .ceo-chart:last-child{grid-column:1/-1}.ceo-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.ceo-hero{padding:22px;display:block}.ceo-hero-art{display:none}.ceo-flow,.ceo-chart-grid,.ceo-kpi-grid,.ceo-action-grid{grid-template-columns:1fr}.ceo-chart-grid .ceo-chart:last-child{grid-column:auto}.ceo-health{grid-template-columns:100px 1fr}}
+
+
+/* CEO DARK EXECUTIVE REFERENCE 2026-09-22 */
+body.ceo-dashboard{--bg:#07111f;--panel:#0f1c2d;--ink:#e7f0fa;--muted:#91a5bb;--line:#263e57;--navy:#0a1625;--orange:#4ec9ed;--orange2:#173148;--green:#70dfd0;--greenbg:#14362f;--amber:#f0be63;--amberbg:#3a2d18;--red:#f36c82;--redbg:#40202a;--blue:#79c9f2;--bluebg:#132a40;--shadow:0 14px 34px #0005;background:#07111f;color:#e7f0fa}
+body.ceo-dashboard .app{display:block;background:#07111f;min-height:100vh}
+body.ceo-dashboard .sidebar{position:sticky;top:0;z-index:20;height:auto;padding:9px 20px;display:flex;flex-direction:row;align-items:center;gap:18px;background:#0a1625;border-bottom:1px solid #21364c;box-shadow:none}
+body.ceo-dashboard .sidebar .brand{font-size:16px;min-width:max-content}
+body.ceo-dashboard .sidebar .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(145deg,#1d5970,#25415f);border:1px solid #5e8fa7;color:#dff8ff}
+body.ceo-dashboard .sidebar .brand small{color:#85cbe0;font-size:8px}
+body.ceo-dashboard .sidebar .nav{display:flex;gap:6px;overflow:auto;margin-left:auto}
+body.ceo-dashboard .sidebar .nav button{white-space:nowrap;text-align:center;padding:8px 10px;border:1px solid transparent;border-radius:9px;color:#9fb3c8}
+body.ceo-dashboard .sidebar .nav button.active{background:#122239;border-color:#2c4660;color:#eef7ff;border-left:1px solid #2c4660}
+body.ceo-dashboard .sidebar .sidebox{display:none}
+body.ceo-dashboard .main{background:#07111f;min-height:calc(100vh - 57px)}
+body.ceo-dashboard .topbar{height:52px;top:57px;z-index:15;background:#0a1625;border-bottom:1px solid #1f354b;color:#e8f1fa;padding:0 20px}
+body.ceo-dashboard .topbar .muted{color:#87a0b8}
+body.ceo-dashboard .btn{background:#122239;border-color:#2b455f;color:#dce8f6}
+body.ceo-dashboard .btn.primary{background:linear-gradient(120deg,#2b3a62,#3b2f5c);border-color:#5c588a;color:#eee9ff}
+body.ceo-dashboard .content{max-width:none;padding:12px 20px 18px;margin:0}
+body.ceo-dashboard .heading{display:none}
+body.ceo-dashboard .banner{margin:0 0 10px;padding:7px 11px;background:#0c1625;border:1px solid #21364c;border-radius:9px;color:#8fa6bd}
+body.ceo-dashboard .banner strong{display:inline;margin-right:8px;color:#a9dff0;font-size:11px}
+body.ceo-dashboard .ceo-hero{min-height:auto;padding:2px 0 10px;margin:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+body.ceo-dashboard .ceo-hero h1{font-size:24px;color:#edf5fd;margin:1px 0 2px}
+body.ceo-dashboard .ceo-hero p{font-size:11px;color:#91a5bb;max-width:980px;line-height:1.6}
+body.ceo-dashboard .ceo-hero .eyebrow{color:#69d4ef;font-size:9px}
+body.ceo-dashboard .ceo-hero-art{display:none}
+body.ceo-dashboard .ceo-hero-tags{margin-top:7px;gap:6px}
+body.ceo-dashboard .ceo-hero-tags span{background:#0f1e31;color:#9ec2da;border-color:#29435e;padding:3px 8px;font-size:9px}
+body.ceo-dashboard .ceo-flow{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0;min-height:96px}
+body.ceo-dashboard .ceo-domain{min-height:96px;padding:11px 13px;gap:3px;background:linear-gradient(110deg,#13253a,#101c2d)!important;border:1px solid #2a425b!important;border-radius:14px;box-shadow:none}
+body.ceo-dashboard .ceo-domain:hover{background:linear-gradient(110deg,#192f47,#142539)!important;border-color:#6595b4!important;transform:translateY(-1px)}
+body.ceo-dashboard .ceo-domain:not(:last-child):after{display:none}
+body.ceo-dashboard .ceo-domain-name{font-size:11px;color:#bed0e0!important}
+body.ceo-dashboard .ceo-icon{width:24px;height:24px;background:#183149;color:#9ed8ea;border-radius:7px;font-size:10px}
+body.ceo-dashboard .ceo-domain-value{font-size:24px;color:#eef6ff;margin-top:1px}
+body.ceo-dashboard .ceo-domain-caption{font-size:9px;min-height:16px;color:#8fa5bb}
+body.ceo-dashboard .ceo-domain-foot{font-size:9px;border-color:#20374c;color:#80bdd2;padding-top:3px}
+body.ceo-dashboard .ceo-note{margin:7px 0 10px;color:#879db3;font-size:9px}
+body.ceo-dashboard .ceo-dot{background:#70dfd0}.ceo-dashboard .ceo-dot.warn{background:#f0be63}.ceo-dashboard .ceo-dot.bad{background:#f36c82}.ceo-dashboard .ceo-dot.missing{background:#7c91a7}
+body.ceo-dashboard .ceo-capital-layout{display:grid;grid-template-columns:minmax(0,3.3fr) minmax(280px,1fr);gap:11px;margin-bottom:11px}
+body.ceo-dashboard .ceo-capital-map,body.ceo-dashboard .ceo-now{border:1px solid #263e57;border-radius:15px;background:#0f1c2d;overflow:hidden;min-width:0}
+body.ceo-dashboard .ceo-capital-head{height:43px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #1e3247}
+body.ceo-dashboard .ceo-capital-head h2{font-size:15px;color:#e7f1fb}
+body.ceo-dashboard .ceo-capital-head span{font-size:10px;color:#8fa5ba}
+body.ceo-dashboard .ceo-capital-scene{position:relative;height:270px;overflow:hidden;background:radial-gradient(circle at 58% 42%,#1b3a47 0,#17313f 20%,#0f2333 56%,#0a1726 100%)}
+body.ceo-dashboard .ceo-capital-scene:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#07111f66,transparent 45%,#06111f88);pointer-events:none}
+body.ceo-dashboard .ceo-factory-art{position:absolute;inset:0;width:100%;height:100%;opacity:.72}
+body.ceo-dashboard .ceo-cap-tile{position:absolute;z-index:3;width:21%;min-width:150px;height:64px;border:1px solid #55728d;border-left:3px solid var(--cap);background:#10233aed;border-radius:10px;padding:7px 9px;box-shadow:0 5px 14px #0005}
+body.ceo-dashboard .ceo-cap-tile .cap-line{display:flex;justify-content:space-between;gap:7px;align-items:center}
+body.ceo-dashboard .ceo-cap-tile .cap-label{color:#d0e2f0;font-size:11px}
+body.ceo-dashboard .ceo-cap-tile strong{font-size:18px;color:#f1f7fd;white-space:nowrap}
+body.ceo-dashboard .ceo-cap-tile small{display:block;color:#a9bfd3;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:9px}
+body.ceo-dashboard .ceo-cap-tile.c1{left:3.5%;top:10px}body.ceo-dashboard .ceo-cap-tile.c2{left:28%;top:10px}body.ceo-dashboard .ceo-cap-tile.c3{left:52.5%;top:10px}body.ceo-dashboard .ceo-cap-tile.c4{right:3.5%;top:10px}
+body.ceo-dashboard .ceo-cap-tile.c5{left:3.5%;bottom:24px}body.ceo-dashboard .ceo-cap-tile.c6{left:28%;bottom:24px}body.ceo-dashboard .ceo-cap-tile.c7{left:52.5%;bottom:24px}body.ceo-dashboard .ceo-cap-tile.c8{right:3.5%;bottom:24px}
+body.ceo-dashboard .ceo-cap-caption{position:absolute;bottom:5px;left:14px;z-index:4;color:#9eb2c6;font-size:9px}
+body.ceo-dashboard .ceo-now{display:flex;flex-direction:column}
+body.ceo-dashboard .ceo-now-list{padding:0 13px;flex:1}
+body.ceo-dashboard .ceo-now-item{min-height:60px;border-bottom:1px solid #21354a;display:grid;grid-template-columns:25px minmax(0,1fr) 14px;align-items:center;gap:9px}
+body.ceo-dashboard .ceo-now-item .n{width:24px;height:24px;border:1px solid #3a5872;border-radius:7px;display:grid;place-items:center;color:#93a7bb;font-size:10px}
+body.ceo-dashboard .ceo-now-item b{font-size:12px;color:#dce9f6}
+body.ceo-dashboard .ceo-now-item.review b{color:#f0be63}
+body.ceo-dashboard .ceo-now-item small{display:block;color:#8fa5ba;margin-top:2px;font-size:9px}
+body.ceo-dashboard .ceo-now-ai{margin:10px 13px 12px;padding:10px 12px;border:1px solid #4b4c76;border-radius:10px;background:#202b47;display:flex;align-items:center;gap:9px;color:#e8e3ff}
+body.ceo-dashboard .ceo-chart-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:11px}
+body.ceo-dashboard .ceo-chart,body.ceo-dashboard .ceo-section,body.ceo-dashboard .ceo-panel{background:#0f1c2d;border-color:#263e57;box-shadow:none;color:#e7f0fa}
+body.ceo-dashboard .ceo-chart h2,body.ceo-dashboard .ceo-section h2,body.ceo-dashboard .ceo-panel h2{color:#e7f0fa}
+body.ceo-dashboard .ceo-chart .sub,body.ceo-dashboard .ceo-kpi-context,body.ceo-dashboard .ceo-kpi-foot,body.ceo-dashboard .muted{color:#8fa5ba}
+body.ceo-dashboard .ceo-track,body.ceo-dashboard .ceo-capacity-meter{background:#1a2a3d}
+body.ceo-dashboard .ceo-fill,body.ceo-dashboard .ceo-capacity-meter span{background:linear-gradient(90deg,#4eb4d7,#6ad6ee)}
+body.ceo-dashboard .ceo-kpi{background:linear-gradient(110deg,#13253a,#101c2d);border-color:#2a425b;box-shadow:none}
+body.ceo-dashboard .ceo-kpi-head b,body.ceo-dashboard .ceo-kpi-value{color:#edf6ff}
+body.ceo-dashboard .ceo-section-number{background:#183149;color:#89d3eb}
+body.ceo-dashboard .ceo-panel .kpi{background:#11233a;border-color:#2a425b;box-shadow:none}
+body.ceo-dashboard .issue{background:#11233a;border-color:#2a425b}
+body.ceo-dashboard .tablewrap,body.ceo-dashboard table{background:#0f1c2d;border-color:#263e57;color:#dce8f4}
+body.ceo-dashboard th{background:#132338;color:#8fa5ba;border-color:#263e57}body.ceo-dashboard td{border-color:#21354a}
+body.ceo-dashboard .badge{background:#17283d;color:#a9bfd3;border:1px solid #2c4660}
+body.ceo-dashboard .badge.good{background:#14362f;color:#8ae6d4}.ceo-dashboard .badge.warn{background:#3a2d18;color:#f3cb7a}.ceo-dashboard .badge.bad{background:#40202a;color:#ff91a4}.ceo-dashboard .badge.info{background:#142b43;color:#9bd8ff}
+@media(max-width:1050px){body.ceo-dashboard .ceo-capital-layout{grid-template-columns:1fr}body.ceo-dashboard .ceo-flow{grid-template-columns:repeat(2,minmax(0,1fr))}body.ceo-dashboard .ceo-chart-grid{grid-template-columns:1fr}body.ceo-dashboard .ceo-capital-scene{height:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px}body.ceo-dashboard .ceo-factory-art{display:none}body.ceo-dashboard .ceo-cap-tile{position:static;width:auto;min-width:0;height:auto}}
+@media(max-width:760px){body.ceo-dashboard .sidebar{position:static;display:block}body.ceo-dashboard .sidebar .nav{margin-top:8px}body.ceo-dashboard .topbar{position:static}body.ceo-dashboard .content{padding:10px}body.ceo-dashboard .ceo-flow{grid-template-columns:1fr}body.ceo-dashboard .ceo-capital-scene{grid-template-columns:1fr}}
+
+
+/* CEO REFERENCE KPI STRIP ROUND 2 */
+body.ceo-dashboard .ceo-ref-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 10px;min-height:98px}
+body.ceo-dashboard .ceo-ref-kpi{background:linear-gradient(110deg,#13253a,#101c2d);border:1px solid #2b425b;border-radius:14px;padding:11px 13px;display:flex;flex-direction:column;min-width:0;box-shadow:none}
+body.ceo-dashboard .ceo-ref-kpi:hover{border-color:#6595b4;background:linear-gradient(110deg,#192f47,#142539)}
+body.ceo-dashboard .ceo-ref-kpi-top{display:flex;justify-content:space-between;gap:8px;align-items:center;color:#c3d2e2;font-size:11px}
+body.ceo-dashboard .ceo-ref-kpi-top span:last-child{color:#8fc7dc}
+body.ceo-dashboard .ceo-ref-kpi-value{font-size:25px;font-weight:800;color:#edf6ff;margin:4px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ceo-dashboard .ceo-ref-kpi-foot{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px;align-items:end;margin-top:auto;color:#8fa5ba;font-size:9px;min-width:0}
+body.ceo-dashboard .ceo-ref-kpi-foot>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+body.ceo-dashboard .ceo-ref-spark{width:76px;height:21px;fill:none;stroke:#52c7ea;stroke-width:1.5}
+@media(max-width:1050px){body.ceo-dashboard .ceo-ref-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){body.ceo-dashboard .ceo-ref-kpis{grid-template-columns:1fr}}
+
+
+/* AI MANAGEMENT OS V1 - evidence-first multi-agent command layer */
+body.ceo-dashboard .ai-command{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,2.55fr);gap:10px;margin:0 0 10px}
+body.ceo-dashboard .ai-manager{background:linear-gradient(135deg,#17203c,#10263a 58%,#123247);border:1px solid #4b5d83;border-radius:15px;padding:15px;min-width:0;box-shadow:0 10px 28px #0004}
+body.ceo-dashboard .ai-manager-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+body.ceo-dashboard .ai-manager-head .eyebrow{margin:0 0 3px;color:#9bdcff}
+body.ceo-dashboard .ai-manager h2{font-size:18px;color:#f2f7ff}
+body.ceo-dashboard .ai-manager-state{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #4d647e;border-radius:999px;font-size:10px;font-weight:850;white-space:nowrap}
+body.ceo-dashboard .ai-manager-state.good{color:#8ae6d4;background:#14362f;border-color:#2d6559}
+body.ceo-dashboard .ai-manager-state.warn{color:#f3cb7a;background:#3a2d18;border-color:#6a532c}
+body.ceo-dashboard .ai-manager-state.bad{color:#ff91a4;background:#40202a;border-color:#743645}
+body.ceo-dashboard .ai-manager-brief{font-size:12px;line-height:1.72;color:#c7d8e7;border-top:1px solid #2b425b;border-bottom:1px solid #2b425b;padding:10px 0;margin:0 0 10px}
+body.ceo-dashboard .ai-manager-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+body.ceo-dashboard .ai-manager-metric{background:#0d1b2c;border:1px solid #2a425b;border-radius:9px;padding:8px 9px}
+body.ceo-dashboard .ai-manager-metric span{display:block;color:#8099b0;font-size:9px;margin-bottom:3px}
+body.ceo-dashboard .ai-manager-metric b{font-size:14px;color:#edf6ff}
+body.ceo-dashboard .ai-agents-panel{border:1px solid #263e57;border-radius:15px;background:#0f1c2d;padding:12px;min-width:0}
+body.ceo-dashboard .ai-agents-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}
+body.ceo-dashboard .ai-agents-head h2{font-size:14px;color:#e7f1fb}
+body.ceo-dashboard .ai-agents-head span{font-size:9px;color:#8299b0}
+body.ceo-dashboard .ai-agent-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+body.ceo-dashboard .ai-agent{background:#112238;border:1px solid #294159;border-radius:11px;padding:10px;min-width:0;display:flex;flex-direction:column;gap:5px}
+body.ceo-dashboard .ai-agent-top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+body.ceo-dashboard .ai-agent-name{font-size:11px;font-weight:800;color:#dce8f4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ceo-dashboard .ai-agent-status{font-size:8px;font-weight:850;border-radius:999px;padding:3px 6px;border:1px solid #405a72;color:#9fb7cb}
+body.ceo-dashboard .ai-agent-status.good{color:#8ae6d4;border-color:#35685e;background:#14362f}
+body.ceo-dashboard .ai-agent-status.warn{color:#f3cb7a;border-color:#6d592f;background:#3a2d18}
+body.ceo-dashboard .ai-agent-status.bad{color:#ff91a4;border-color:#753846;background:#40202a}
+body.ceo-dashboard .ai-agent-value{font-size:18px;font-weight:850;color:#edf6ff}
+body.ceo-dashboard .ai-agent-note{font-size:9px;line-height:1.45;color:#849cb3;min-height:27px}
+body.ceo-dashboard .ai-priority{margin-top:8px;border-top:1px solid #263e57;padding-top:8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+body.ceo-dashboard .ai-priority-item{display:grid;grid-template-columns:22px minmax(0,1fr);gap:7px;align-items:start;background:#0d1b2c;border:1px solid #243b52;border-radius:9px;padding:7px}
+body.ceo-dashboard .ai-priority-item .rank{width:21px;height:21px;border-radius:6px;display:grid;place-items:center;background:#173149;color:#8fd7ef;font-size:9px;font-weight:850}
+body.ceo-dashboard .ai-priority-item b{display:block;color:#dce9f6;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ceo-dashboard .ai-priority-item small{display:block;color:#7f97af;font-size:8px;margin-top:2px}
+@media(max-width:1250px){body.ceo-dashboard .ai-command{grid-template-columns:1fr}body.ceo-dashboard .ai-agent-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){body.ceo-dashboard .ai-agent-grid,body.ceo-dashboard .ai-priority{grid-template-columns:1fr}body.ceo-dashboard .ai-manager-metrics{grid-template-columns:1fr}}
+
+
+/* AI MANAGEMENT OS V2 - cross-functional signal + recommendation layer */
+body.ceo-dashboard .ai-v2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px;margin:0 0 10px}
+body.ceo-dashboard .ai-v2-panel{background:#0f1c2d;border:1px solid #263e57;border-radius:15px;padding:13px;min-width:0}
+body.ceo-dashboard .ai-v2-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+body.ceo-dashboard .ai-v2-head h2{font-size:14px;color:#e7f1fb}
+body.ceo-dashboard .ai-v2-head span{font-size:9px;color:#8199b0}
+body.ceo-dashboard .ai-signal-list{display:grid;gap:7px}
+body.ceo-dashboard .ai-signal{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:start;background:#0d1b2c;border:1px solid #243b52;border-radius:10px;padding:9px}
+body.ceo-dashboard .ai-signal-index{width:26px;height:26px;display:grid;place-items:center;border-radius:7px;background:#173149;color:#8fd7ef;font-size:9px;font-weight:850}
+body.ceo-dashboard .ai-signal b{display:block;color:#e1ecf7;font-size:11px}
+body.ceo-dashboard .ai-signal small{display:block;color:#8199b0;font-size:9px;line-height:1.45;margin-top:2px}
+body.ceo-dashboard .ai-signal-score{font-size:9px;font-weight:850;border:1px solid #405a72;border-radius:999px;padding:4px 7px;color:#aec4d8;white-space:nowrap}
+body.ceo-dashboard .ai-signal-score.high{background:#40202a;color:#ff91a4;border-color:#743645}
+body.ceo-dashboard .ai-signal-score.medium{background:#3a2d18;color:#f3cb7a;border-color:#6a532c}
+body.ceo-dashboard .ai-signal-score.low{background:#14362f;color:#8ae6d4;border-color:#2d6559}
+body.ceo-dashboard .ai-reco-list{display:grid;gap:8px}
+body.ceo-dashboard .ai-reco{border:1px solid #2b425b;background:linear-gradient(110deg,#13253a,#101c2d);border-radius:10px;padding:10px}
+body.ceo-dashboard .ai-reco-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+body.ceo-dashboard .ai-reco h3{font-size:11px;color:#e7f1fb}
+body.ceo-dashboard .ai-reco p{font-size:9px;color:#8fa5ba;line-height:1.55;margin-top:5px}
+body.ceo-dashboard .ai-reco .buttons{margin-top:8px}
+body.ceo-dashboard .ai-memory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}
+body.ceo-dashboard .ai-memory>div{background:#0d1b2c;border:1px solid #243b52;border-radius:9px;padding:8px}
+body.ceo-dashboard .ai-memory span{display:block;color:#8199b0;font-size:8px}
+body.ceo-dashboard .ai-memory b{display:block;color:#edf6ff;font-size:13px;margin-top:3px}
+@media(max-width:1050px){body.ceo-dashboard .ai-v2{grid-template-columns:1fr}}
+@media(max-width:760px){body.ceo-dashboard .ai-memory{grid-template-columns:1fr}}
+
+
+/* AI MANAGEMENT OS V3 - root cause, what-if, closed-loop */
+body.ceo-dashboard .ai-v3{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,.9fr);gap:10px;margin:0 0 10px}
+body.ceo-dashboard .ai-v3-panel{background:#0f1c2d;border:1px solid #263e57;border-radius:15px;padding:13px;min-width:0}
+body.ceo-dashboard .ai-v3-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}
+body.ceo-dashboard .ai-v3-head h2{font-size:14px;color:#e7f1fb}
+body.ceo-dashboard .ai-v3-head span{font-size:8px;color:#8199b0}
+body.ceo-dashboard .ai-cause-list{display:grid;gap:7px}
+body.ceo-dashboard .ai-cause{background:#0d1b2c;border:1px solid #243b52;border-radius:10px;padding:9px}
+body.ceo-dashboard .ai-cause-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+body.ceo-dashboard .ai-cause b{font-size:10px;color:#e2edf8}
+body.ceo-dashboard .ai-cause p{font-size:9px;line-height:1.5;color:#839bb2;margin-top:4px}
+body.ceo-dashboard .ai-cause small{display:block;font-size:8px;color:#718aa3;margin-top:5px}
+body.ceo-dashboard .ai-sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+body.ceo-dashboard .ai-sim-field{display:grid;gap:4px}
+body.ceo-dashboard .ai-sim-field label{font-size:8px;color:#829ab1}
+body.ceo-dashboard .ai-sim-field input{width:100%;border:1px solid #36506a;background:#0a1727;color:#eaf3fb;border-radius:8px;padding:8px 9px;font-size:11px}
+body.ceo-dashboard .ai-sim-actions{display:flex;gap:7px;margin-top:8px}
+body.ceo-dashboard .ai-sim-result{margin-top:9px;border:1px solid #2b425b;background:#0d1b2c;border-radius:10px;padding:9px;min-height:78px}
+body.ceo-dashboard .ai-sim-result b{display:block;color:#e7f1fb;font-size:11px}
+body.ceo-dashboard .ai-sim-result p{font-size:9px;line-height:1.55;color:#849cb3;margin-top:4px}
+body.ceo-dashboard .ai-learning-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+body.ceo-dashboard .ai-learning-stat{background:#0d1b2c;border:1px solid #243b52;border-radius:9px;padding:8px}
+body.ceo-dashboard .ai-learning-stat span{display:block;font-size:8px;color:#7e97af}
+body.ceo-dashboard .ai-learning-stat b{display:block;font-size:16px;color:#edf6ff;margin-top:2px}
+body.ceo-dashboard .ai-learning-note{margin-top:8px;padding-top:8px;border-top:1px solid #243b52;font-size:9px;line-height:1.55;color:#839bb2}
+@media(max-width:1250px){body.ceo-dashboard .ai-v3{grid-template-columns:1fr 1fr}body.ceo-dashboard .ai-v3-panel:last-child{grid-column:1/-1}}
+@media(max-width:760px){body.ceo-dashboard .ai-v3{grid-template-columns:1fr}body.ceo-dashboard .ai-v3-panel:last-child{grid-column:auto}body.ceo-dashboard .ai-sim-grid,body.ceo-dashboard .ai-learning-grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div id="loginScreen" class="loginwrap">
+  <section class="login">
+    <div class="brand"><span class="logo">P&T</span><div>BOS<small>MANAGEMENT CONTROL CENTER</small></div></div>
+    <div class="eyebrow">SECURE ACCESS / SUPABASE RLS</div>
+    <h1 style="font-size:25px;margin-bottom:7px">เข้าสู่ระบบบริหาร P&T</h1>
+    <p class="small muted" style="margin-bottom:18px">ใช้บัญชีที่ได้รับสิทธิ์ใน BOS เท่านั้น ไม่มีการสมัครสมาชิกจากหน้านี้ และไม่มีการส่งอีเมลอัตโนมัติ</p>
+    <form id="loginForm">
+      <label>อีเมล<input id="email" type="email" autocomplete="username" required></label>
+      <label>รหัสผ่าน<input id="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn primary" type="submit">เข้าสู่ระบบ</button>
+      <div id="loginError"></div>
+      <div class="notice">ระบบใช้ Supabase Publishable Key ฝั่ง Browser ตามรูปแบบที่ Supabase รองรับ สิทธิ์ข้อมูลถูกบังคับด้วย Row Level Security (RLS) ในฐานข้อมูล</div>
+    </form>
+  </section>
+</div>
+
+<div id="appScreen" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">P&T</span><div>BOS<small>MANAGEMENT CONTROL CENTER</small></div></div>
+    <nav class="nav" aria-label="เมนู">
+      <button class="active" data-page="dashboard">ภาพรวมผู้บริหาร</button>
+      <button data-page="issues">ประเด็นข้อมูล</button>
+      <button data-page="actions">Action Items</button>
+      <button data-page="decisions">Decision Log</button>
+      <button data-page="cards">ข้อมูลธุรกิจ 32 ด้าน</button>
+    </nav>
+    <div class="sidebox"><b>Live Management v1</b><br>Action / Decision บันทึกสดใน Supabase<br>ข้อมูลธุรกิจอ้างอิง Snapshot ล่าสุดจนกว่า n8n ingestion จะเปิดใช้งาน</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><b>P&T Smart Business Operating System</b><div class="small muted" id="asOfTop">กำลังโหลดข้อมูล</div></div>
+      <div class="userbox"><span id="roleBadge" class="badge info">—</span><span id="userEmail"></span><button id="logout" class="btn">ออกจากระบบ</button></div>
+    </header>
+    <div class="content">
+      <div class="heading">
+        <div><div class="eyebrow">EXECUTIVE MANAGEMENT</div><h1 id="pageTitle">ภาพรวมผู้บริหาร</h1><p class="small muted" id="pageSub">มองสถานะธุรกิจ ประเด็น Action และ Decision ในหน้าจอเดียว</p></div>
+        <div class="buttons"><button class="btn" id="reload">รีเฟรช</button><button class="btn primary write-only" id="quickAction">+ Action</button></div>
+      </div>
+      <div id="freshnessBanner" class="banner"><strong>กำลังโหลดข้อมูล</strong><span>—</span></div>
+      <div id="view"></div>
+    </div>
+  </main>
+</div>
+
+<dialog id="actionDialog">
+  <div class="modalhead"><div><div class="eyebrow">ACTION ITEM</div><h2>สร้าง Action</h2></div><button class="btn" data-close="actionDialog">ปิด ×</button></div>
+  <form id="actionForm" class="modalbody">
+    <div class="formgrid">
+      <label class="field wide">หัวข้อ<input name="title" maxlength="240" required></label>
+      <label class="field wide">รายละเอียด<textarea name="description" maxlength="4000"></textarea></label>
+      <label class="field">Priority<select name="priority"><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option><option>LOW</option></select></label>
+      <label class="field">กำหนดเสร็จ<input name="due_date" type="date"></label>
+      <label class="field">Card ID<input name="related_card_id" maxlength="64" readonly></label>
+      <label class="field">Source<input name="source_code" maxlength="16" readonly></label>
+    </div>
+    <div class="buttons" style="margin-top:16px"><button class="btn primary" type="submit">บันทึก Action</button><button class="btn" type="button" data-close="actionDialog">ยกเลิก</button></div>
+  </form>
+</dialog>
+
+<dialog id="decisionDialog">
+  <div class="modalhead"><div><div class="eyebrow">DECISION LOG</div><h2>บันทึก Decision</h2></div><button class="btn" data-close="decisionDialog">ปิด ×</button></div>
+  <form id="decisionForm" class="modalbody">
+    <div class="formgrid">
+      <label class="field wide">หัวข้อ<input name="title" maxlength="240" required></label>
+      <label class="field wide">บริบท / เหตุผล<textarea name="context" maxlength="6000"></textarea></label>
+      <label class="field wide">Decision<textarea name="decision_text" maxlength="6000"></textarea></label>
+      <label class="field">วันที่มีผล<input name="effective_date" type="date"></label>
+      <label class="field">Card ID<input name="related_card_id" maxlength="64" readonly></label>
+      <label class="field">Gate ID<input name="related_gate_id" maxlength="64" readonly></label>
+    </div>
+    <div class="buttons" style="margin-top:16px"><button class="btn primary" type="submit">บันทึก Draft</button><button class="btn" type="button" data-close="decisionDialog">ยกเลิก</button></div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+'use strict';
+(function(){
+  var SUPABASE_URL='https://ghpkuhrkxuukztwlgudq.supabase.co';
+  var SUPABASE_KEY='sb_publishable_cy41OPYufMjzbCvBiVrIzA_H8IRDB1A';
+  var STORAGE_KEY='pandt_bos_management_session_v1';
+  var state={session:null,user:null,access:null,kpis:null,cards:[],issues:[],actions:[],decisions:[],page:'dashboard',loading:false};
+  var pageInfo={
+    dashboard:['ภาพรวมผู้บริหาร','มองสถานะธุรกิจ ประเด็น Action และ Decision ในหน้าจอเดียว'],
+    issues:['ประเด็นข้อมูล','รายการข้อมูลที่ยังไม่พร้อมหรือควรตรวจสอบก่อนใช้ตัดสินใจ'],
+    actions:['Action Items','ติดตามงานแก้ไข ผู้รับผิดชอบ Priority และ Due date'],
+    decisions:['Decision Log','เก็บบริบท การตัดสินใจ และสถานะอนุมัติอย่างตรวจสอบย้อนหลังได้'],
+    cards:['ข้อมูลธุรกิจ 32 ด้าน','อ่านค่าธุรกิจจาก Snapshot ล่าสุดโดยไม่แทน Unknown เป็นศูนย์']
+  };
+  var $=function(id){return document.getElementById(id);};
+  var esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+  var fmtDate=function(v){if(!v)return '—';var d=new Date(v);return Number.isNaN(d.getTime())?esc(v):d.toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});};
+  var fmtDay=function(v){if(!v)return '—';var d=new Date(v+'T00:00:00');return Number.isNaN(d.getTime())?esc(v):d.toLocaleDateString('th-TH',{dateStyle:'medium'});};
+  var fmtValue=function(c){
+    if(c==null||c.value_numeric==null)return '—';
+    var n=Number(c.value_numeric); if(!Number.isFinite(n))return '—';
+    if(c.kind==='CAPACITY'||c.kind==='OEE')return n.toLocaleString('th-TH',{maximumFractionDigits:2})+'%';
+    if(c.kind==='CREDIT')return n.toLocaleString('th-TH',{maximumFractionDigits:2})+' วัน';
+    if(c.kind==='COUNT')return n.toLocaleString('th-TH',{maximumFractionDigits:0})+' รายการ';
+    if(c.kind==='MONEY')return n.toLocaleString('th-TH',{maximumFractionDigits:2})+' บาท';
+    return n.toLocaleString('th-TH',{maximumFractionDigits:2});
+  };
+  var badge=function(code){
+    code=code||'UNKNOWN';
+    var cls=/BLOCK|CRITICAL|FAILED|UNAVAILABLE/.test(code)?'bad':/PARTIAL|REVIEW|PENDING|NO_|UNKNOWN|MEDIUM|HIGH/.test(code)?'warn':/OPEN|IN_PROGRESS|DRAFT|REFERENCE|NON_MONETARY/.test(code)?'info':'good';
+    return '<span class="badge '+cls+'">'+esc(code)+'</span>';
+  };
+  var toastTimer;
+  function toast(msg){$('toast').textContent=msg;clearTimeout(toastTimer);toastTimer=setTimeout(function(){$('toast').textContent='';},3500);}
+  function setBusy(on){state.loading=on;$('appScreen').classList.toggle('loading',on);}
+  function saveSession(s){state.session=s;sessionStorage.setItem(STORAGE_KEY,JSON.stringify(s));}
+  function clearSession(){state.session=null;state.user=null;state.access=null;sessionStorage.removeItem(STORAGE_KEY);}
+  function headers(auth){
+    var h={'apikey':SUPABASE_KEY,'Content-Type':'application/json','Accept':'application/json'};
+    if(auth&&state.session&&state.session.access_token)h.Authorization='Bearer '+state.session.access_token;
+    return h;
+  }
+  async function parseResponse(res){
+    var text=await res.text();var body=null;
+    try{body=text?JSON.parse(text):null;}catch(e){body=text;}
+    if(!res.ok){var msg=body&&body.message?body.message:body&&body.error_description?body.error_description:typeof body==='string'?body:'HTTP '+res.status;var err=new Error(msg);err.status=res.status;throw err;}
+    return body;
+  }
+  async function authFetch(path,body){
+    var res=await fetch(SUPABASE_URL+path,{method:'POST',headers:headers(false),body:JSON.stringify(body),credentials:'omit'});
+    return parseResponse(res);
+  }
+  async function refresh(){
+    if(!state.session||!state.session.refresh_token)throw new Error('ไม่มี refresh token');
+    var data=await authFetch('/auth/v1/token?grant_type=refresh_token',{refresh_token:state.session.refresh_token});
+    var next={access_token:data.access_token,refresh_token:data.refresh_token,user:data.user||state.user};
+    saveSession(next);state.user=next.user;return next;
+  }
+  async function api(path,opt,retry){
+    opt=opt||{}; retry=retry!==false;
+    var res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+      method:opt.method||'GET',
+      headers:Object.assign(headers(true),opt.headers||{}),
+      body:opt.body===undefined?undefined:JSON.stringify(opt.body),
+      credentials:'omit'
+    });
+    if(res.status===401&&retry){await refresh();return api(path,opt,false);}
+    return parseResponse(res);
+  }
+  async function audit(eventType,detail){
+    try{
+      if(!state.user)return;
+      await api('bos_audit_events',{method:'POST',headers:{Prefer:'return=minimal'},body:{user_id:state.user.id,event_type:eventType,detail:detail||{}}});
+    }catch(e){}
+  }
+  async function login(email,password){
+    var data=await authFetch('/auth/v1/token?grant_type=password',{email:email,password:password});
+    var s={access_token:data.access_token,refresh_token:data.refresh_token,user:data.user};
+    saveSession(s);state.user=data.user;
+    await loadAccess();
+    await audit('BOS_LOGIN',{ui:'management_v1'});
+  }
+  async function loadAccess(){
+    if(!state.user)throw new Error('ไม่พบผู้ใช้');
+    var rows=await api('bos_access?select=user_id,email,role,active&user_id=eq.'+encodeURIComponent(state.user.id));
+    if(!Array.isArray(rows)||rows.length!==1||rows[0].active!==true)throw new Error('บัญชีนี้ไม่มีสิทธิ์ใช้งาน P&T BOS');
+    state.access=rows[0];
+  }
+  async function restore(){
+    var raw=sessionStorage.getItem(STORAGE_KEY);if(!raw)return false;
+    try{state.session=JSON.parse(raw);state.user=state.session.user;await loadAccess();return true;}
+    catch(e){try{await refresh();state.user=state.session.user;await loadAccess();return true;}catch(x){clearSession();return false;}}
+  }
+  async function loadAll(){
+    setBusy(true);
+    try{
+      var results=await Promise.all([
+        api('bos_management_kpis?select=*'),
+        api('bos_current_snapshot_cards?select=*&order=source_code.asc,title.asc'),
+        api('bos_current_data_issues?select=*'),
+        api('bos_action_items?select=*&order=created_at.desc'),
+        api('bos_decisions?select=*&order=created_at.desc')
+      ]);
+      state.kpis=Array.isArray(results[0])&&results[0][0]?results[0][0]:{};
+      state.cards=results[1]||[];
+      state.issues=(results[2]||[]).sort(function(a,b){var w={HIGH:3,MEDIUM:2,LOW:1};return (w[b.severity]||0)-(w[a.severity]||0);});
+      state.actions=results[3]||[];
+      state.decisions=results[4]||[];
+      updateShell();render();
+    }finally{setBusy(false);}
+  }
+  function updateShell(){
+    $('userEmail').textContent=state.access?state.access.email:'';
+    $('roleBadge').textContent=state.access?state.access.role:'—';
+    var owner=state.access&&state.access.role==='OWNER';
+    var canWrite=state.access&&['OWNER','EXECUTIVE'].includes(state.access.role);
+    document.querySelectorAll('.write-only').forEach(function(el){el.classList.toggle('hidden',!canWrite);});
+    document.body.dataset.owner=owner?'1':'0';
+    var sourceAt=state.cards[0]&&state.cards[0].source_read_at;
+    $('asOfTop').textContent=sourceAt?'Snapshot อ่านต้นทางถึง '+fmtDate(sourceAt):'ยังไม่พบ Snapshot';
+    var banner=$('freshnessBanner');
+    banner.innerHTML='<strong>สถานะข้อมูลธุรกิจ</strong><span>'+(sourceAt?'Snapshot ล่าสุด '+esc(state.kpis.current_month||'—')+' · อ่านต้นทางถึง '+fmtDate(sourceAt)+' · Action/Decision ด้านล่างเป็น Live ใน Supabase':'ยังไม่มี Snapshot ธุรกิจ แต่ระบบ Action/Decision ยังใช้งานได้')+'</span>';
+  }
+  function currentCard(id){return state.cards.find(function(x){return x.card_id===id;})||null;}
+
+  function compactMoney(c){
+    if(!c||c.value_numeric==null)return '—';
+    var n=Number(c.value_numeric); if(!Number.isFinite(n))return '—';
+    if(Math.abs(n)>=1000000)return (n/1000000).toLocaleString('th-TH',{maximumFractionDigits:2})+' ลบ.';
+    if(Math.abs(n)>=1000)return (n/1000).toLocaleString('th-TH',{maximumFractionDigits:1})+' พัน';
+    return n.toLocaleString('th-TH',{maximumFractionDigits:0});
+  }
+  function valuePct(c,max){
+    if(!c||c.value_numeric==null||!max)return 0;
+    return Math.max(3,Math.min(100,Number(c.value_numeric)/max*100));
+  }
+  function dashboard(){
+    var k=state.kpis||{};
+    var orders=currentCard('orders'), forecast=currentCard('forecast'), fg=currentCard('fg'),
+        ar=currentCard('ar'), ap=currentCard('ap'), capacity=currentCard('capacity'),
+        purchase=currentCard('purchase'), qa=currentCard('qaFinal'),
+        material=currentCard('material'), tooling=currentCard('tooling'), wip=currentCard('wip'),
+        fac2=currentCard('fac2'), plating=currentCard('plating');
+    var metrics=[orders,forecast,fg,ar,ap,capacity,purchase,qa].filter(Boolean);
+    var moneyCards=[orders,forecast,fg,ar,ap,purchase].filter(function(x){return x&&x.value_numeric!=null;});
+    var maxMoney=Math.max.apply(null,moneyCards.map(function(x){return Number(x.value_numeric)||0;}).concat([1]));
+    var issues=Number(k.data_issues||0), cards=Number(k.current_cards||32);
+    var health=Math.max(0,Math.min(100,Math.round((cards-issues)/Math.max(cards,1)*100)));
+    var month=esc(k.current_month||'—');
+    var sourceAt=state.cards[0]&&state.cards[0].source_read_at;
+    var heroArt='<svg class="ceo-hero-art" viewBox="0 0 260 128" aria-hidden="true"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#5f8fdc"/><stop offset="1" stop-color="#66c1c0"/></linearGradient></defs><rect x="18" y="24" width="220" height="82" rx="16" fill="#fff" opacity=".7"/><path d="M37 87 L78 58 L111 72 L150 42 L205 56" fill="none" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/><circle cx="78" cy="58" r="6" fill="#4d8fe6"/><circle cx="150" cy="42" r="6" fill="#59aaa7"/><rect x="42" y="93" width="40" height="5" rx="2.5" fill="#cad8ec"/><rect x="91" y="93" width="64" height="5" rx="2.5" fill="#cad8ec"/><rect x="164" y="93" width="47" height="5" rx="2.5" fill="#cad8ec"/></svg>';
+    var hero='<section class="ceo-hero"><div><div class="eyebrow">P&T / EXECUTIVE WORKSPACE</div><h1>P&T Business Operating System</h1><p>ภาพรวมธุรกิจ โรงงาน การเงิน และข้อมูลเพื่อการตัดสินใจในหน้าจอเดียว โดยคงสถานะ Unknown/Partial ตามหลักฐานจริงและไม่สร้างตัวเลขทดแทน</p><div class="ceo-hero-tags"><span>Supabase RLS</span><span>'+month+'</span><span>'+esc(cards)+' Business Cards</span><span>Action & Decision Live</span></div></div>'+heroArt+'</section>';
+
+    function refKpi(card,icon,path){
+      var value=card?fmtValue(card):'—';
+      var note=card?(card.value_status||card.basis||'Snapshot'):'ไม่มีข้อมูลพร้อมใช้';
+      return '<article class="ceo-ref-kpi"><div class="ceo-ref-kpi-top"><span>'+esc(card&&card.title?card.title:'ยังไม่มีข้อมูล')+'</span><span>'+esc(icon)+'</span></div><div class="ceo-ref-kpi-value">'+esc(value)+'</div><div class="ceo-ref-kpi-foot"><span>'+esc(note)+'</span><svg class="ceo-ref-spark" viewBox="0 0 76 21" aria-hidden="true"><polyline points="'+esc(path)+'"/></svg></div></article>';
+    }
+    var topStrip='<div class="ceo-ref-kpis">'+
+      refKpi(orders,'↗','2,16 18,12 34,9 50,13 72,19')+
+      refKpi(ar,'▣','2,17 18,15 34,6 50,9 72,10')+
+      refKpi(ap,'฿','2,7 20,7 37,7 54,15 73,16')+
+      refKpi(capacity,'◷','2,18 22,13 42,9 62,7 73,5')+
+      refKpi(fg,'◇','2,18 22,12 42,10 62,6 73,7')+
+      '</div>';
+
+    var note='<div class="ceo-note"><div class="ceo-legend"><span><i class="ceo-dot"></i>พร้อมใช้</span><span><i class="ceo-dot warn"></i>ต้อง Review</span><span><i class="ceo-dot bad"></i>Blocked / Missing</span><span><i class="ceo-dot missing"></i>Unknown</span></div><span>อ่านต้นทาง '+esc(sourceAt?fmtDate(sourceAt):'—')+'</span></div>';
+
+    function aiSeverityRank(s){s=String(s||'').toUpperCase();return s==='HIGH'?3:s==='MEDIUM'?2:s==='LOW'?1:0;}
+    function aiMatchesIssue(x,sources,cardIds){
+      var src=String(x&&x.source_code||'').toUpperCase();
+      var cid=String(x&&x.card_id||'');
+      return sources.some(function(s){return src.indexOf(s)>=0;})||cardIds.indexOf(cid)>=0;
+    }
+    function aiCardReady(x){
+      if(!x)return false;
+      var s=String(x.value_status||'').toUpperCase();
+      return x.value_numeric!=null||(['READY','OK','KNOWN','ACTUAL'].indexOf(s)>=0);
+    }
+    function aiAgent(name,sources,cardIds){
+      var agentIssues=state.issues.filter(function(x){return aiMatchesIssue(x,sources,cardIds);});
+      var agentCards=state.cards.filter(function(x){return cardIds.indexOf(String(x.card_id||''))>=0||sources.some(function(s){return String(x.source_code||'').toUpperCase().indexOf(s)>=0;});});
+      var high=agentIssues.filter(function(x){return String(x.severity||'').toUpperCase()==='HIGH';}).length;
+      var known=agentCards.filter(aiCardReady).length;
+      var readiness=agentCards.length?Math.round(known/agentCards.length*100):0;
+      var status=high?'ALERT':(agentIssues.length?'REVIEW':(agentCards.length?'READY':'WAITING'));
+      var cls=status==='ALERT'?'bad':status==='REVIEW'?'warn':status==='READY'?'good':'';
+      var value=agentIssues.length?agentIssues.length+' issue'+(agentIssues.length===1?'':'s'):(agentCards.length?readiness+'%':'—');
+      var noteText=agentIssues.length?(high?high+' HIGH · ต้องตรวจหลักฐานก่อนตัดสินใจ':'มี '+agentIssues.length+' ประเด็นที่ควร Review'):(agentCards.length?'Data readiness '+readiness+'%':'ยังไม่มีข้อมูลในขอบเขต Agent');
+      return '<article class="ai-agent"><div class="ai-agent-top"><span class="ai-agent-name">'+esc(name)+'</span><span class="ai-agent-status '+cls+'">'+esc(status)+'</span></div><div class="ai-agent-value">'+esc(value)+'</div><div class="ai-agent-note">'+esc(noteText)+'</div></article>';
+    }
+    var aiHigh=state.issues.filter(function(x){return String(x.severity||'').toUpperCase()==='HIGH';}).length;
+    var aiMedium=state.issues.filter(function(x){return String(x.severity||'').toUpperCase()==='MEDIUM';}).length;
+    var aiManagerStatus=aiHigh?'RED':((aiMedium||health<90)?'AMBER':'GREEN');
+    var aiManagerClass=aiManagerStatus==='RED'?'bad':aiManagerStatus==='AMBER'?'warn':'good';
+    var aiDecisionReadiness=aiHigh?'BLOCKED':((state.issues.length||Number(k.overdue_actions||0)>0)?'REVIEW':'READY');
+    var aiTop=state.issues.slice().sort(function(a,b){return aiSeverityRank(b.severity)-aiSeverityRank(a.severity);}).slice(0,3);
+    var aiBrief=aiHigh
+      ?'พบ Data Issue ระดับ HIGH '+aiHigh+' รายการ ระบบยังไม่ควรสรุปข้ามแผนกเป็นคำสั่งอัตโนมัติ ให้ตรวจหลักฐานของรายการลำดับแรกก่อน: '+(aiTop[0]&&aiTop[0].title||'—')
+      :(state.issues.length
+        ?'ข้อมูลโดยรวมอยู่ในสถานะ Review มี '+state.issues.length+' ประเด็นที่ควรตรวจต่อ AI Manager จัดลำดับจาก Severity และ Decision Use โดยไม่สร้างตัวเลขทดแทน'
+        :'Snapshot ปัจจุบันไม่พบ Data Issue ตามกติกาที่ตั้งไว้ AI Manager พร้อมติดตาม Action และ Decision ต่อจากข้อมูลจริง');
+    var aiPriority=aiTop.length?aiTop.map(function(x,i){
+      return '<div class="ai-priority-item"><span class="rank">0'+(i+1)+'</span><div><b>'+esc(x.title||'Data issue')+'</b><small>'+esc((x.source_code||'UNKNOWN')+' · '+(x.severity||'REVIEW')+' · '+(x.decision_use||'ตรวจหลักฐาน'))+'</small></div></div>';
+    }).join(''):'<div class="ai-priority-item"><span class="rank">01</span><div><b>ไม่มีประเด็นในคิว</b><small>AI Manager จะสร้างคิวเมื่อพบ Issue จาก Snapshot</small></div></div>';
+    var aiCommand='<section class="ai-command" aria-label="AI Management OS">'+
+      '<div class="ai-manager"><div class="ai-manager-head"><div><div class="eyebrow">AI EXECUTIVE ADVISOR</div><h2>AI MANAGER · Evidence-first</h2></div><span class="ai-manager-state '+aiManagerClass+'">● '+aiManagerStatus+'</span></div>'+
+      '<div class="ai-manager-brief">'+esc(aiBrief)+'</div>'+
+      '<div class="ai-manager-metrics"><div class="ai-manager-metric"><span>Decision Readiness</span><b>'+esc(aiDecisionReadiness)+'</b></div><div class="ai-manager-metric"><span>Data Readiness</span><b>'+esc(health)+'%</b></div><div class="ai-manager-metric"><span>Open / Overdue Action</span><b>'+esc(k.open_actions||0)+' / '+esc(k.overdue_actions||0)+'</b></div></div></div>'+
+      '<div class="ai-agents-panel"><div class="ai-agents-head"><h2>AI Management Team</h2><span>วิเคราะห์จาก Snapshot + Data Issue ปัจจุบัน · ไม่มี paid AI call</span></div>'+
+      '<div class="ai-agent-grid">'+
+        aiAgent('Production AI',['OEE','PC','PD','QA'],['capacity','wip','qaFinal','fac2','plating'])+
+        aiAgent('Finance AI',['FIN'],['ar','ap','purchase'])+
+        aiAgent('Supply Chain AI',['SO','SC','PR','PU'],['orders','forecast','material','tooling','fg','purchase'])+
+        aiAgent('Data Quality AI',[],state.cards.map(function(x){return String(x.card_id||'');}))+
+        aiAgent('AI Auditor',[],state.cards.filter(function(x){return String(x.decision_use||'').toUpperCase()==='BLOCKED';}).map(function(x){return String(x.card_id||'');}))+
+      '</div><div class="ai-priority">'+aiPriority+'</div></div></section>';
+
+
+    function aiSourceFamily(x){
+      var s=String(x&&x.source_code||'').toUpperCase();
+      if(/OEE|PC|PD|QA/.test(s))return 'PRODUCTION';
+      if(/FIN|AR|AP/.test(s))return 'FINANCE';
+      if(/SO|SC|PR|PU/.test(s))return 'SUPPLY_CHAIN';
+      return 'DATA';
+    }
+    function aiSignalScore(issue){
+      var sev=String(issue&&issue.severity||'').toUpperCase();
+      var use=String(issue&&issue.decision_use||'').toUpperCase();
+      var score=(sev==='HIGH'?45:sev==='MEDIUM'?30:15)+(use==='BLOCKED'?35:use==='REVIEW'?20:10);
+      var card=currentCard(String(issue&&issue.card_id||''));
+      if(card&&card.value_numeric!=null)score+=10;
+      return Math.max(0,Math.min(100,score));
+    }
+    function aiConfidence(issue){
+      var card=currentCard(String(issue&&issue.card_id||''));
+      var points=35;
+      if(issue&&issue.source_code)points+=15;
+      if(issue&&issue.basis)points+=15;
+      if(issue&&issue.value_status)points+=10;
+      if(card&&card.data_as_of)points+=10;
+      if(card&&card.value_numeric!=null)points+=15;
+      return Math.max(0,Math.min(100,points));
+    }
+    var aiFamilies={};
+    state.issues.forEach(function(x){
+      var f=aiSourceFamily(x);(aiFamilies[f]||(aiFamilies[f]=[])).push(x);
+    });
+    var aiSignals=state.issues.slice().sort(function(a,b){return aiSignalScore(b)-aiSignalScore(a);}).slice(0,4);
+    var aiSignalHtml=aiSignals.length?aiSignals.map(function(x,i){
+      var sc=aiSignalScore(x), conf=aiConfidence(x), cls=sc>=70?'high':sc>=45?'medium':'low';
+      return '<div class="ai-signal"><span class="ai-signal-index">0'+(i+1)+'</span><div><b>'+esc(x.title||'Issue')+'</b><small>'+esc(aiSourceFamily(x)+' · '+(x.source_code||'UNKNOWN')+' · Confidence '+conf+'% · '+(x.decision_use||'REVIEW'))+'</small></div><span class="ai-signal-score '+cls+'">'+sc+'/100</span></div>';
+    }).join(''):'<div class="empty"><strong>ยังไม่มี Cross-functional Signal</strong>ระบบจะสร้างสัญญาณเมื่อพบ Data Issue ที่มีหลักฐานเพียงพอ</div>';
+
+    function aiRecommendation(issue){
+      if(!issue)return null;
+      var family=aiSourceFamily(issue);
+      var title='ตรวจสอบหลักฐานก่อนดำเนินการ';
+      var detail='ยืนยัน Source, Data As-of และ Basis ก่อนสร้าง Action หรือ Decision';
+      if(family==='PRODUCTION'){title='เปิด Production Review';detail='ให้ PC / Production / QA ตรวจ Job, Capacity, WIP และข้อจำกัดที่เกี่ยวข้องร่วมกันก่อนปรับแผน';}
+      if(family==='FINANCE'){title='เปิด Financial Impact Review';detail='ตรวจฐานมูลค่า ช่วงเวลา และรายการที่เกี่ยวข้องก่อนสรุปผลกระทบทางการเงิน';}
+      if(family==='SUPPLY_CHAIN'){title='เปิด Delivery / Supply Review';detail='ตรวจ Due date, Material, FG/WIP และสถานะคำสั่งซื้อก่อนเร่งหรือเปลี่ยนแผน';}
+      return {title:title,detail:detail,issue:issue};
+    }
+    var aiReco=aiSignals.slice(0,3).map(aiRecommendation).filter(Boolean);
+    var canAiWrite=state.access&&['OWNER','EXECUTIVE'].includes(state.access.role);
+    var aiRecoHtml=aiReco.length?aiReco.map(function(r){
+      var x=r.issue;
+      return '<article class="ai-reco"><div class="ai-reco-top"><h3>'+esc(r.title)+'</h3>'+badge(x.decision_use||'REVIEW')+'</div><p>'+esc(r.detail)+'</p>'+
+        (canAiWrite?'<div class="buttons"><button class="btn" data-action-card="'+esc(x.card_id||'')+'" data-action-source="'+esc(x.source_code||'')+'" data-action-title="'+esc('[AI Review] '+r.title+' - '+(x.title||''))+'">สร้าง Action จากคำแนะนำ</button></div>':'')+
+        '</article>';
+    }).join(''):'<div class="empty"><strong>ยังไม่มีคำแนะนำ</strong>AI Manager จะเสนอเฉพาะคำแนะนำที่มี Issue รองรับ</div>';
+
+    var approvedMemory=state.decisions.filter(function(d){return String(d.status||'').toUpperCase()==='APPROVED';}).length;
+    var doneMemory=state.actions.filter(function(a){return String(a.status||'').toUpperCase()==='DONE';}).length;
+    var activeFamilies=Object.keys(aiFamilies).filter(function(k){return aiFamilies[k]&&aiFamilies[k].length;}).length;
+    var aiV2='<section class="ai-v2" aria-label="AI cross functional intelligence">'+
+      '<div class="ai-v2-panel"><div class="ai-v2-head"><h2>Cross-functional Signals</h2><span>Priority = Severity + Decision Use + Evidence</span></div><div class="ai-signal-list">'+aiSignalHtml+'</div></div>'+
+      '<div class="ai-v2-panel"><div class="ai-v2-head"><h2>AI Recommendations</h2><span>RECOMMEND only · ไม่ Execute อัตโนมัติ</span></div><div class="ai-reco-list">'+aiRecoHtml+'</div>'+
+      '<div class="ai-memory"><div><span>Approved Decisions</span><b>'+approvedMemory+'</b></div><div><span>Completed Actions</span><b>'+doneMemory+'</b></div><div><span>Active Domains</span><b>'+activeFamilies+'</b></div></div></div></section>';
+
+
+    function aiRootCauseCandidates(){
+      var defs={
+        PRODUCTION:{title:'Production constraint / evidence candidate',desc:'ตรวจ Capacity, WIP, QA, OEE และสถานะงานที่เกี่ยวข้องร่วมกัน'},
+        SUPPLY_CHAIN:{title:'Demand / Supply mismatch candidate',desc:'ตรวจ Order, Forecast, Material, FG และ Purchase timing ร่วมกัน'},
+        FINANCE:{title:'Financial timing / valuation candidate',desc:'ตรวจช่วงเวลา ฐานมูลค่า AR/AP และรายการต้นทางก่อนสรุปผลกระทบ'},
+        DATA:{title:'Data quality / mapping candidate',desc:'ตรวจ Missing, Mapping, Freshness และ Source Contract ก่อนใช้ในการตัดสินใจ'}
+      };
+      return Object.keys(aiFamilies).map(function(f){
+        var rows=aiFamilies[f]||[]; if(!rows.length)return null;
+        var high=rows.filter(function(x){return String(x.severity||'').toUpperCase()==='HIGH';}).length;
+        var blocked=rows.filter(function(x){return String(x.decision_use||'').toUpperCase()==='BLOCKED';}).length;
+        var cards=[].concat(rows.map(function(x){return x.card_id;}).filter(Boolean)).filter(function(v,i,a){return a.indexOf(v)===i;});
+        var def=defs[f]||defs.DATA;
+        return {family:f,title:def.title,desc:def.desc,count:rows.length,high:high,blocked:blocked,cards:cards};
+      }).filter(Boolean).sort(function(a,b){return (b.high*10+b.blocked*5+b.count)-(a.high*10+a.blocked*5+a.count);}).slice(0,4);
+    }
+    var aiCauses=aiRootCauseCandidates();
+    var aiCauseHtml=aiCauses.length?aiCauses.map(function(x){
+      var tag=x.blocked?'BLOCKED':x.high?'HIGH':'REVIEW';
+      return '<article class="ai-cause"><div class="ai-cause-top"><b>'+esc(x.title)+'</b>'+badge(tag)+'</div><p>'+esc(x.desc)+'</p><small>'+esc(x.count+' issues · '+x.high+' HIGH · '+x.blocked+' BLOCKED · Cards '+(x.cards.slice(0,4).join(', ')||'—'))+'</small></article>';
+    }).join(''):'<div class="empty"><strong>ยังไม่มี Root Cause Candidate</strong>ต้องมี Issue ที่เชื่อมโยงกันก่อน ระบบจึงจะแสดง Candidate</div>';
+
+    var currentCapacity=(capacity&&capacity.value_numeric!=null&&Number.isFinite(Number(capacity.value_numeric)))?Number(capacity.value_numeric):null;
+    var scenarioBaseIssues=state.issues.length;
+    var simBaseline=currentCapacity==null?'Capacity baseline = Unknown':'Capacity baseline = '+currentCapacity.toLocaleString('th-TH',{maximumFractionDigits:2})+'%';
+    var aiSimulator='<div class="ai-sim-grid">'+
+      '<div class="ai-sim-field"><label>สมมติ Capacity เปลี่ยน (%)</label><input id="simCapacityDelta" type="number" min="-50" max="50" step="1" value="0"></div>'+
+      '<div class="ai-sim-field"><label>สมมติ Issue ลดลง (รายการ)</label><input id="simIssueReduction" type="number" min="0" max="'+esc(scenarioBaseIssues)+'" step="1" value="0"></div>'+
+      '</div><div class="ai-sim-actions"><button class="btn" data-run-sim="1">คำนวณ Scenario</button></div>'+
+      '<div id="aiSimResult" class="ai-sim-result"><b>Scenario Sandbox</b><p>'+esc(simBaseline+' · Issues '+scenarioBaseIssues+' รายการ')+'<br>เป็นการจำลองตามสมมติฐานของผู้ใช้ ไม่ใช่ Forecast และไม่เขียนกลับระบบ</p></div>';
+
+    var eligibleActions=state.actions.filter(function(a){return String(a.status||'').toUpperCase()!=='CANCELLED';});
+    var doneActions=eligibleActions.filter(function(a){return String(a.status||'').toUpperCase()==='DONE';});
+    var approvedDecisions=state.decisions.filter(function(d){return String(d.status||'').toUpperCase()==='APPROVED';});
+    var learningCards={};
+    doneActions.forEach(function(a){if(a.related_card_id)learningCards[a.related_card_id]=(learningCards[a.related_card_id]||0)+1;});
+    approvedDecisions.forEach(function(d){if(d.related_card_id)learningCards[d.related_card_id]=(learningCards[d.related_card_id]||0)+1;});
+    var learnedCardCount=Object.keys(learningCards).length;
+    var loopRate=eligibleActions.length?Math.round(doneActions.length/eligibleActions.length*100):0;
+    var strongestCard=Object.keys(learningCards).sort(function(a,b){return learningCards[b]-learningCards[a];})[0]||'—';
+    var aiLearning='<div class="ai-learning-grid">'+
+      '<div class="ai-learning-stat"><span>Action Closure</span><b>'+loopRate+'%</b></div>'+
+      '<div class="ai-learning-stat"><span>Completed Actions</span><b>'+doneActions.length+'</b></div>'+
+      '<div class="ai-learning-stat"><span>Approved Decisions</span><b>'+approvedDecisions.length+'</b></div>'+
+      '<div class="ai-learning-stat"><span>Cards with Memory</span><b>'+learnedCardCount+'</b></div>'+
+      '</div><div class="ai-learning-note">Most referenced card: <b>'+esc(strongestCard)+'</b><br>ตอนนี้ระบบเรียนรู้จากประวัติ Action/Decision ที่ปิดแล้ว แต่ยังไม่ตีความว่า “วิธีใดได้ผล” จนกว่าจะมี Outcome/KPI หลังดำเนินการที่วัดได้</div>';
+
+    var aiV3='<section class="ai-v3" aria-label="AI reasoning and learning layer">'+
+      '<div class="ai-v3-panel"><div class="ai-v3-head"><h2>Root Cause Candidates</h2><span>Candidate ≠ conclusion</span></div><div class="ai-cause-list">'+aiCauseHtml+'</div></div>'+
+      '<div class="ai-v3-panel"><div class="ai-v3-head"><h2>What-if Simulator</h2><span>Assumption sandbox</span></div>'+aiSimulator+'</div>'+
+      '<div class="ai-v3-panel"><div class="ai-v3-head"><h2>Closed-loop Learning</h2><span>Action → Decision → Outcome</span></div>'+aiLearning+'</div>'+
+      '</section>';
+
+    var bars=moneyCards.slice(0,5).map(function(x){return '<div class="ceo-bar-row"><span>'+esc(x.title)+'</span><div class="ceo-track"><div class="ceo-fill" style="width:'+valuePct(x,maxMoney).toFixed(1)+'%"></div></div><b>'+esc(compactMoney(x))+'</b></div>';}).join('');
+
+    function capTile(cls,label,card,accent,note){
+      return '<div class="ceo-cap-tile '+cls+'" style="--cap:'+accent+'"><div class="cap-line"><span class="cap-label">'+esc(label)+'</span><strong>'+esc(compactMoney(card))+'</strong></div><small>'+esc(note||((card&&card.value_status)?card.value_status:'ยังไม่มีข้อมูลพร้อมใช้'))+'</small></div>';
+    }
+    var factoryArt='<svg class="ceo-factory-art" viewBox="0 0 1200 320" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="road2" x1="0" x2="1"><stop stop-color="#233846"/><stop offset="1" stop-color="#172b36"/></linearGradient></defs><path d="M0 230 L1200 120 L1200 180 L0 290Z" fill="url(#road2)"/><path d="M230 65h220v105H230zM470 95h220v100H470zM715 62h235v110H715zM970 110h160v100H970z" fill="#173241" stroke="#315262"/><path d="M250 70l50-28h220l-70 28zM490 100l55-30h220l-75 30zM735 68l55-28h235l-75 28zM990 116l40-22h160l-60 22z" fill="#274c56" opacity=".9"/><rect x="170" y="48" width="865" height="190" rx="22" fill="none" stroke="#78b5c8" stroke-dasharray="4 8" opacity=".45"/></svg>';
+    var capitalMap='<div class="ceo-capital-layout"><section class="ceo-capital-map"><div class="ceo-capital-head"><h2>🏭 FACTORY CAPITAL MAP</h2><span>มูลค่าตามหลักฐานของแต่ละกระบวนการ · ไม่รวมยอดต่างฐานเอง</span></div><div class="ceo-capital-scene">'+factoryArt+
+      capTile('c1','Material',material,'#62d6ef','Material · '+((material&&material.value_status)||'รอตรวจ'))+
+      capTile('c2','Tooling',tooling,'#b4c0ff','Tooling · '+((tooling&&tooling.value_status)||'รอตรวจ'))+
+      capTile('c3','WIP / Job',wip,'#82b5ff','WIP · '+((wip&&wip.value_status)||'รอตรวจ'))+
+      capTile('c4','FG',fg,'#70dfd0','FG · '+((fg&&fg.value_status)||'รอตรวจ'))+
+      capTile('c5','Total Inventory',null,'#b4dce9','ไม่รวมยอดอัตโนมัติเมื่อฐานมูลค่าต่างกัน')+
+      capTile('c6','QA',qa,'#c6aaff','Final Check QA · '+((qa&&qa.value_status)||'รอตรวจ'))+
+      capTile('c7','FAC2',fac2,'#bcadf3','FAC2 · '+((fac2&&fac2.value_status)||'รอตรวจ'))+
+      capTile('c8','Plating',plating,'#f0cc91','Plating · '+((plating&&plating.value_status)||'รอตรวจ'))+
+      '<div class="ceo-cap-caption">ภาพจำลองกระบวนการ · ไม่ใช่ตำแหน่งจริง · Unknown ยังคงเป็น Unknown</div></div></section>'+
+      '<aside class="ceo-now"><div class="ceo-capital-head"><h2>เรื่องที่ควรดูตอนนี้</h2><span>'+esc(Math.min(4,state.issues.length))+'</span></div><div class="ceo-now-list">'+
+      (state.issues.length?state.issues.slice(0,4).map(function(x,i){return '<div class="ceo-now-item '+(x.severity==='HIGH'?'review':'')+'"><span class="n">0'+(i+1)+'</span><div><b>'+esc(x.title)+'</b><small>'+esc(x.source_code||'')+' · '+esc(x.value_status||'REVIEW')+'</small></div><span>→</span></div>';}).join(''):'<div class="ceo-now-item"><span class="n">01</span><div><b>ยังไม่มี Data Issue</b><small>Snapshot นี้ไม่พบประเด็นตามกติกาปัจจุบัน</small></div><span>→</span></div>')+
+      '</div><div class="ceo-now-ai"><span>▣</span><div><b>ถามผู้ช่วย</b><small>Context · Evidence · Action</small></div></div></aside></div>';
+
+    var charts='<div class="ceo-chart-grid">'+
+      '<section class="ceo-chart"><h2>ภาพรวมมูลค่าธุรกิจ</h2><div class="sub">เปรียบเทียบเฉพาะค่าที่มีฐานมูลค่าชัดเจนใน Snapshot</div><div class="ceo-bars">'+bars+'</div></section>'+
+      '<section class="ceo-chart"><h2>Data Readiness</h2><div class="sub">สัดส่วน Business Cards ที่ไม่ถูกจัดเป็น Data Issue</div><div class="ceo-health"><div class="ceo-ring" style="--pct:'+health+'"><strong>'+health+'%</strong></div><div class="ceo-health-list"><div><span>Business Cards</span><b>'+esc(cards)+'</b></div><div><span>Data Issues</span><b>'+esc(issues)+'</b></div><div><span>HIGH</span><b>'+esc(state.issues.filter(function(x){return x.severity==='HIGH';}).length)+'</b></div><div><span>MEDIUM</span><b>'+esc(state.issues.filter(function(x){return x.severity==='MEDIUM';}).length)+'</b></div></div></div></section>'+
+      '<section class="ceo-chart"><h2>Factory Capacity</h2><div class="sub">ค่าจาก OEE Snapshot ปัจจุบัน</div><div class="ceo-capacity-big">'+esc(capacity&&capacity.value_numeric!=null?Number(capacity.value_numeric).toLocaleString('th-TH',{maximumFractionDigits:2})+'%':'—')+'</div><div class="ceo-capacity-meter"><span style="width:'+esc(capacity&&capacity.value_numeric!=null?Math.max(0,Math.min(100,Number(capacity.value_numeric))):0)+'%"></span></div><div class="small muted">แสดงเป็นสถานะปัจจุบัน ไม่ตีความเป็นคำแนะนำ OT/ลงทุนเครื่องจักรโดยอัตโนมัติ</div></section>'+
+      '</div>';
+
+    var kpis='<section class="ceo-section"><div class="ceo-section-title"><div class="ceo-section-label"><span class="ceo-section-number">01</span><div><h2>Executive KPIs</h2><div class="small muted">เจาะจาก Snapshot ล่าสุด · ไม่แทน Unknown เป็น 0</div></div></div><button class="btn" data-goto="cards">ดูทั้ง 32 ด้าน</button></div><div class="ceo-kpi-grid">'+
+      metrics.map(function(c){return '<article class="ceo-kpi"><div class="ceo-kpi-head"><b>'+esc(c.title)+'</b>'+badge(c.value_status)+'</div><div class="ceo-kpi-value">'+esc(fmtValue(c))+'</div><div class="ceo-kpi-context">'+esc(c.basis||'อ้างอิงตาม Source Contract ของ '+c.source_code)+'</div><div class="ceo-kpi-foot"><span>'+esc(c.source_code)+'</span><span>'+esc(c.data_as_of||'Snapshot')+'</span></div></article>';}).join('')+
+      '</div></section>';
+
+    var actions='<section class="ceo-section"><div class="ceo-section-title"><div class="ceo-section-label"><span class="ceo-section-number">02</span><div><h2>สิ่งที่ต้องจัดการ</h2><div class="small muted">Data Issue → Action → Decision</div></div></div></div><div class="ceo-action-grid">'+
+      '<section class="ceo-panel"><div class="ceo-panel-head"><div><h2>ประเด็นที่ต้องดู</h2><div class="small muted">เรียงจากความสำคัญของคุณภาพข้อมูล</div></div><button class="btn" data-goto="issues">ดูทั้งหมด</button></div>'+(state.issues.length?state.issues.slice(0,5).map(issueItem).join(''):'<div class="empty"><strong>ไม่มี Data Issue</strong>Snapshot นี้ไม่พบประเด็นตามกติกาปัจจุบัน</div>')+'</section>'+
+      '<section class="ceo-panel"><div class="ceo-panel-head"><div><h2>Action / Decision</h2><div class="small muted">ติดตามการจัดการต่อจาก Insight</div></div><div class="buttons"><button class="btn" data-goto="actions">Action</button><button class="btn" data-goto="decisions">Decision</button></div></div>'+
+      '<div class="grid4" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="kpi"><div class="label">Open Action</div><div class="value">'+esc(k.open_actions||0)+'</div><div class="sub">กำลังติดตาม</div></div><div class="kpi"><div class="label">Overdue</div><div class="value">'+esc(k.overdue_actions||0)+'</div><div class="sub">เลยกำหนด</div></div><div class="kpi"><div class="label">Draft Decision</div><div class="value">'+esc(k.draft_decisions||0)+'</div><div class="sub">รออนุมัติ</div></div><div class="kpi"><div class="label">Approved</div><div class="value">'+esc(k.approved_decisions||0)+'</div><div class="sub">อนุมัติแล้ว</div></div></div>'+
+      '</section></div></section>';
+
+    return hero+topStrip+aiCommand+aiV2+aiV3+note+capitalMap+charts+kpis+actions;
+  }
+  function issueItem(x){
+    var canWrite=state.access&&['OWNER','EXECUTIVE'].includes(state.access.role);
+    return '<article class="issue '+String(x.severity||'').toLowerCase()+'"><div class="meta"><div><b>'+esc(x.title)+'</b><div class="small muted">'+esc(x.source_code)+' · '+esc(x.card_id)+'</div></div>'+badge(x.severity)+'</div><div>'+badge(x.value_status)+' '+(x.decision_use?badge(x.decision_use):'')+'</div><p>'+esc(x.basis||'ไม่มีรายละเอียด')+'</p>'+
+      (canWrite?'<div class="buttons"><button class="btn" data-action-card="'+esc(x.card_id)+'" data-action-source="'+esc(x.source_code)+'" data-action-title="'+esc('ตรวจสอบ '+x.title)+'">สร้าง Action</button></div>':'')+'</article>';
+  }
+  function issues(){
+    return '<section class="card"><div class="section-head"><div><h2>Data Issues</h2><p class="small muted">'+state.issues.length+' ประเด็นจาก Snapshot ล่าสุด</p></div></div>'+
+      (state.issues.length?'<div class="issuegrid">'+state.issues.map(issueItem).join('')+'</div>':'<div class="empty"><strong>ไม่พบ Data Issue</strong>ไม่มีรายการจากกติกาปัจจุบัน</div>')+'</section>';
+  }
+  function actionRow(a){
+    var canWrite=state.access&&['OWNER','EXECUTIVE'].includes(state.access.role);
+    var statusControl=canWrite?'<select data-action-status="'+esc(a.id)+'"><option'+(a.status==='OPEN'?' selected':'')+'>OPEN</option><option'+(a.status==='IN_PROGRESS'?' selected':'')+'>IN_PROGRESS</option><option'+(a.status==='BLOCKED'?' selected':'')+'>BLOCKED</option><option'+(a.status==='DONE'?' selected':'')+'>DONE</option><option'+(a.status==='CANCELLED'?' selected':'')+'>CANCELLED</option></select>':badge(a.status);
+    return '<tr><td><b>'+esc(a.title)+'</b><div class="small muted">'+esc(a.description||'')+'</div></td><td>'+badge(a.priority)+'</td><td>'+esc(a.source_code||'—')+'</td><td>'+esc(a.related_card_id||'—')+'</td><td>'+fmtDay(a.due_date)+'</td><td>'+statusControl+'</td><td>'+fmtDate(a.updated_at)+'</td></tr>';
+  }
+  function actions(){
+    var canWrite=state.access&&['OWNER','EXECUTIVE'].includes(state.access.role);
+    return '<section class="card"><div class="section-head"><div><h2>Action Items</h2><p class="small muted">ติดตามงานบริหารที่บันทึกใน Supabase</p></div>'+(canWrite?'<button class="btn primary" data-new-action="1">+ Action</button>':'')+'</div>'+
+      (state.actions.length?'<div class="tablewrap"><table><thead><tr><th>Action</th><th>Priority</th><th>Source</th><th>Card</th><th>Due</th><th>Status</th><th>Updated</th></tr></thead><tbody>'+state.actions.map(actionRow).join('')+'</tbody></table></div>':'<div class="empty"><strong>ยังไม่มี Action Item</strong>สร้าง Action เพื่อเริ่มติดตามงาน</div>')+'</section>';
+  }
+  function decisionRow(d){
+    var owner=state.access&&state.access.role==='OWNER';
+    var control=owner&&d.status==='DRAFT'?'<button class="btn primary" data-approve-decision="'+esc(d.id)+'">อนุมัติ</button>':badge(d.status);
+    return '<tr><td><b>'+esc(d.title)+'</b><div class="small muted">'+esc(d.context||'')+'</div></td><td>'+esc(d.related_card_id||'—')+'</td><td>'+fmtDay(d.effective_date)+'</td><td>'+control+'</td><td>'+fmtDate(d.updated_at)+'</td></tr>';
+  }
+  function decisions(){
+    var canWrite=state.access&&['OWNER','EXECUTIVE'].includes(state.access.role);
+    return '<section class="card"><div class="section-head"><div><h2>Decision Log</h2><p class="small muted">บันทึกเหตุผลและผลการตัดสินใจเพื่อย้อนตรวจสอบได้</p></div>'+(canWrite?'<button class="btn primary" data-new-decision="1">+ Decision</button>':'')+'</div>'+
+      (state.decisions.length?'<div class="tablewrap"><table><thead><tr><th>Decision</th><th>Card</th><th>Effective</th><th>Status</th><th>Updated</th></tr></thead><tbody>'+state.decisions.map(decisionRow).join('')+'</tbody></table></div>':'<div class="empty"><strong>ยังไม่มี Decision</strong>เริ่มบันทึก Decision สำคัญของฝ่ายบริหารได้</div>')+'</section>';
+  }
+  function cards(){
+    return '<section class="card"><div class="section-head"><div><h2>Business Cards 32 ด้าน</h2><p class="small muted">Snapshot '+esc(state.kpis&&state.kpis.current_month||'—')+' · Unknown ไม่ถูกแทนเป็นศูนย์</p></div></div>'+
+      '<div class="tablewrap"><table><thead><tr><th>Card</th><th>Source</th><th>Kind</th><th>Value</th><th>Status</th><th>Decision Use</th><th>Data As-of</th></tr></thead><tbody>'+
+      state.cards.map(function(c){return '<tr><td><b>'+esc(c.title)+'</b><div class="small muted">'+esc(c.card_id)+'</div></td><td>'+esc(c.source_code)+'</td><td>'+esc(c.kind)+'</td><td>'+esc(fmtValue(c))+'</td><td>'+badge(c.value_status)+'</td><td>'+(c.decision_use?badge(c.decision_use):'—')+'</td><td>'+esc(c.data_as_of||'—')+'</td></tr>';}).join('')+
+      '</tbody></table></div></section>';
+  }
+  function render(){
+    document.body.classList.toggle('ceo-dashboard',state.page==='dashboard');
+    var info=pageInfo[state.page];$('pageTitle').textContent=info[0];$('pageSub').textContent=info[1];
+    document.querySelectorAll('.nav button').forEach(function(b){b.classList.toggle('active',b.dataset.page===state.page);});
+    var map={dashboard:dashboard,issues:issues,actions:actions,decisions:decisions,cards:cards};
+    $('view').innerHTML=map[state.page]();
+  }
+  function openAction(seed){
+    var f=$('actionForm');f.reset();
+    f.elements.related_card_id.value=seed&&seed.card||'';
+    f.elements.source_code.value=seed&&seed.source||'';
+    f.elements.title.value=seed&&seed.title||'';
+    $('actionDialog').showModal();
+  }
+  function openDecision(seed){
+    var f=$('decisionForm');f.reset();
+    f.elements.related_card_id.value=seed&&seed.card||'';
+    f.elements.related_gate_id.value=seed&&seed.gate||'';
+    $('decisionDialog').showModal();
+  }
+  async function createAction(form){
+    var body={
+      title:form.elements.title.value.trim(),
+      description:form.elements.description.value.trim(),
+      priority:form.elements.priority.value,
+      due_date:form.elements.due_date.value||null,
+      related_card_id:form.elements.related_card_id.value||null,
+      source_code:form.elements.source_code.value||null
+    };
+    if(!body.title)throw new Error('กรุณาระบุหัวข้อ Action');
+    var rows=await api('bos_action_items',{method:'POST',headers:{Prefer:'return=representation'},body:body});
+    await audit('BOS_ACTION_CREATED',{action_id:rows&&rows[0]?rows[0].id:null,related_card_id:body.related_card_id});
+    $('actionDialog').close();toast('บันทึก Action แล้ว');await loadAll();
+  }
+  async function updateActionStatus(id,status){
+    var rows=await api('bos_action_items?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{Prefer:'return=representation'},body:{status:status}});
+    await audit('BOS_ACTION_STATUS_CHANGED',{action_id:id,status:status});
+    toast('อัปเดตสถานะ Action แล้ว');await loadAll();return rows;
+  }
+  async function createDecision(form){
+    var body={
+      title:form.elements.title.value.trim(),
+      context:form.elements.context.value.trim(),
+      decision_text:form.elements.decision_text.value.trim(),
+      effective_date:form.elements.effective_date.value||null,
+      related_card_id:form.elements.related_card_id.value||null,
+      related_gate_id:form.elements.related_gate_id.value||null,
+      status:'DRAFT'
+    };
+    if(!body.title)throw new Error('กรุณาระบุหัวข้อ Decision');
+    var rows=await api('bos_decisions',{method:'POST',headers:{Prefer:'return=representation'},body:body});
+    await audit('BOS_DECISION_CREATED',{decision_id:rows&&rows[0]?rows[0].id:null,related_card_id:body.related_card_id});
+    $('decisionDialog').close();toast('บันทึก Decision Draft แล้ว');await loadAll();
+  }
+  async function approveDecision(id){
+    var rows=await api('bos_decisions?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{Prefer:'return=representation'},body:{status:'APPROVED'}});
+    await audit('BOS_DECISION_APPROVED',{decision_id:id});
+    toast('อนุมัติ Decision แล้ว');await loadAll();return rows;
+  }
+  function showApp(){
+    $('loginScreen').classList.add('hidden');$('appScreen').classList.remove('hidden');updateShell();
+  }
+  function showLogin(){
+    $('appScreen').classList.add('hidden');$('loginScreen').classList.remove('hidden');$('password').value='';
+  }
+
+  $('loginForm').addEventListener('submit',async function(e){
+    e.preventDefault();$('loginError').textContent='';$('loginError').className='';
+    try{
+      await login($('email').value.trim(),$('password').value);
+      showApp();await loadAll();
+    }catch(err){
+      clearSession();$('loginError').className='error';$('loginError').textContent='เข้าสู่ระบบไม่สำเร็จ: '+err.message;
+    }
+  });
+  $('logout').addEventListener('click',async function(){
+    await audit('BOS_LOGOUT',{ui:'management_v1'});
+    clearSession();showLogin();
+  });
+  $('reload').addEventListener('click',function(){loadAll().catch(function(e){toast('รีเฟรชไม่สำเร็จ: '+e.message);});});
+  $('quickAction').addEventListener('click',function(){openAction();});
+  $('actionForm').addEventListener('submit',function(e){e.preventDefault();createAction(e.currentTarget).catch(function(err){toast('บันทึกไม่ได้: '+err.message);});});
+  $('decisionForm').addEventListener('submit',function(e){e.preventDefault();createDecision(e.currentTarget).catch(function(err){toast('บันทึกไม่ได้: '+err.message);});});
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    if(b.dataset.page){state.page=b.dataset.page;render();}
+    if(b.dataset.goto){state.page=b.dataset.goto;render();}
+    if(b.dataset.close){$(b.dataset.close).close();}
+    if(b.dataset.newAction){openAction();}
+    if(b.dataset.newDecision){openDecision();}
+    if(b.dataset.actionCard){openAction({card:b.dataset.actionCard,source:b.dataset.actionSource,title:b.dataset.actionTitle});}
+    if(b.dataset.runSim){
+      var capEl=$('simCapacityDelta'), issueEl=$('simIssueReduction'), out=$('aiSimResult');
+      if(out){
+        var capDelta=Number(capEl&&capEl.value||0), issueReduction=Number(issueEl&&issueEl.value||0);
+        if(!Number.isFinite(capDelta))capDelta=0;if(!Number.isFinite(issueReduction))issueReduction=0;
+        issueReduction=Math.max(0,Math.min(state.issues.length,Math.round(issueReduction)));
+        var capCard=currentCard('capacity');
+        var baseCap=(capCard&&capCard.value_numeric!=null&&Number.isFinite(Number(capCard.value_numeric)))?Number(capCard.value_numeric):null;
+        var nextCap=baseCap==null?null:Math.max(0,Math.min(200,baseCap+capDelta));
+        var nextIssues=Math.max(0,state.issues.length-issueReduction);
+        var readiness=Math.max(0,Math.min(100,Math.round(((Number(state.kpis&&state.kpis.current_cards)||32)-nextIssues)/Math.max(Number(state.kpis&&state.kpis.current_cards)||32,1)*100)));
+        out.innerHTML='<b>Scenario Result</b><p>'+
+          (nextCap==null?'Capacity: Unknown (ไม่มี baseline)':'Capacity: '+esc(baseCap.toLocaleString('th-TH',{maximumFractionDigits:2}))+'% → '+esc(nextCap.toLocaleString('th-TH',{maximumFractionDigits:2}))+'%')+
+          '<br>Data Issues: '+esc(state.issues.length)+' → '+esc(nextIssues)+' · Readiness โดยสมมติฐาน: '+esc(readiness)+'%'+
+          '<br><strong>ไม่ใช่ Forecast:</strong> ผลนี้เป็น arithmetic sandbox จากค่าที่คุณป้อนเท่านั้น</p>';
+      }
+    }
+    if(b.dataset.approveDecision){if(confirm('ยืนยันอนุมัติ Decision นี้?'))approveDecision(b.dataset.approveDecision).catch(function(err){toast('อนุมัติไม่ได้: '+err.message);});}
+  });
+  document.addEventListener('change',function(e){
+    if(e.target&&e.target.dataset.actionStatus){
+      var id=e.target.dataset.actionStatus;var status=e.target.value;
+      updateActionStatus(id,status).catch(function(err){toast('อัปเดตไม่ได้: '+err.message);});
+    }
+  });
+
+  (async function boot(){
+    if(await restore()){
+      showApp();
+      try{await loadAll();}catch(e){toast('โหลดข้อมูลไม่สำเร็จ: '+e.message);}
+    }else showLogin();
+  })();
+})();
+</script>
+</body>
+</html>
