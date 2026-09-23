@@ -594,6 +594,71 @@ body.ceo-dashboard .empty{border-color:rgba(116,176,214,.16);background:rgba(7,1
   body.ceo-dashboard .ceo-ref-kpis,body.ceo-dashboard .ai-agent-grid{grid-template-columns:1fr}
 }
 
+/* AI MANAGEMENT OS V2 - CEO NEXUS / inspired by Executive Advisor, reworked for native BOS */
+body.ceo-dashboard .ai-command{display:block;margin:0 0 11px}
+body.ceo-dashboard .ai-nexus-v2{position:relative;overflow:hidden;border:1px solid rgba(78,203,237,.24);border-radius:22px;background:
+radial-gradient(circle at 8% 0%,rgba(69,216,244,.10),transparent 26%),
+radial-gradient(circle at 92% 8%,rgba(150,100,255,.11),transparent 30%),
+linear-gradient(135deg,#071522 0%,#0c1b2e 53%,#18132d 100%);box-shadow:0 22px 70px #0007;padding:16px}
+body.ceo-dashboard .ai-nexus-v2:after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at 1px 1px,rgba(118,217,255,.09) 1px,transparent 0);background-size:26px 26px;mask-image:linear-gradient(90deg,#0008,transparent 78%)}
+body.ceo-dashboard .ai-nexus-v2>*{position:relative;z-index:1}
+body.ceo-dashboard .ai-nexus-head-v2{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center}
+body.ceo-dashboard .ai-nexus-core-v2{position:relative;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#0b2a45 0 27%,#071624 29% 50%,transparent 52%),conic-gradient(#42dff6,#8b70ff,#efaa54,#42dff6);box-shadow:0 0 30px rgba(66,223,246,.22)}
+body.ceo-dashboard .ai-nexus-core-v2:before,body.ceo-dashboard .ai-nexus-core-v2:after{content:"";position:absolute;inset:-7px;border:1px solid rgba(84,218,255,.28);border-radius:50%;animation:aiPulseV2 2.9s ease-in-out infinite}
+body.ceo-dashboard .ai-nexus-core-v2:after{inset:-13px;animation-delay:.55s;border-color:rgba(150,108,255,.18)}
+body.ceo-dashboard .ai-nexus-core-v2 span{font:900 9px system-ui;letter-spacing:.13em;color:#e4fbff}
+@keyframes aiPulseV2{0%,100%{opacity:.35;transform:scale(.97)}50%{opacity:.9;transform:scale(1.04)}}
+body.ceo-dashboard .ai-nexus-kicker-v2{font:850 9px system-ui;letter-spacing:.16em;color:#75eaff}
+body.ceo-dashboard .ai-nexus-head-v2 h2{margin:3px 0 4px;font-size:18px;color:#f3fbff}
+body.ceo-dashboard .ai-nexus-head-v2 p{margin:0;color:#819db2;font-size:10px;line-height:1.55}
+body.ceo-dashboard .ai-nexus-state-v2{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+body.ceo-dashboard .ai-nexus-status-v2{font:850 9px system-ui;letter-spacing:.07em;padding:5px 8px;border-radius:999px;border:1px solid #476177;color:#9db6c9;background:#0c2033}
+body.ceo-dashboard .ai-nexus-status-v2.good{color:#78f0c9;border-color:#2e6659;background:#0c2a25}
+body.ceo-dashboard .ai-nexus-status-v2.warn{color:#ffd07b;border-color:#6b542c;background:#302817}
+body.ceo-dashboard .ai-nexus-status-v2.bad{color:#ff9baa;border-color:#743746;background:#351d27}
+body.ceo-dashboard .ai-nexus-body-v2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:10px;margin-top:13px}
+body.ceo-dashboard .ai-nexus-brief-v2,body.ceo-dashboard .ai-nexus-side-v2{border:1px solid rgba(92,164,215,.15);border-radius:14px;background:rgba(5,13,24,.55);padding:12px}
+body.ceo-dashboard .ai-axis-v2{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+body.ceo-dashboard .ai-axis-v2 span{font:850 8px system-ui;border-radius:999px;padding:4px 6px;background:#10243a;border:1px solid #29455f;color:#87a6bc}
+body.ceo-dashboard .ai-axis-v2 .good{color:#72e8c2;border-color:#2c6658;background:#0e2a25}
+body.ceo-dashboard .ai-axis-v2 .warn{color:#ffd07b;border-color:#6a532d;background:#302817}
+body.ceo-dashboard .ai-axis-v2 .bad{color:#ff96a8;border-color:#703745;background:#341e27}
+body.ceo-dashboard .ai-nexus-brief-v2 h3,body.ceo-dashboard .ai-nexus-side-v2 h3{font-size:12px;color:#eaf7ff;margin-bottom:6px}
+body.ceo-dashboard .ai-nexus-summary-v2{font-size:11px;line-height:1.65;color:#a8c0d2;margin-bottom:9px}
+body.ceo-dashboard .ai-nexus-priorities-v2{display:grid;gap:6px}
+body.ceo-dashboard .ai-nexus-priority-v2{display:grid;grid-template-columns:5px minmax(0,1fr);gap:8px;padding:7px 8px;border-radius:9px;background:rgba(11,25,41,.73);border:1px solid rgba(89,151,197,.12)}
+body.ceo-dashboard .ai-nexus-priority-v2 i{border-radius:999px;background:#f1bc61;box-shadow:0 0 10px #f1bc6155}
+body.ceo-dashboard .ai-nexus-priority-v2.high i{background:#f36c82;box-shadow:0 0 10px #f36c8255}
+body.ceo-dashboard .ai-nexus-priority-v2 b{display:block;color:#dcecf6;font-size:10px}
+body.ceo-dashboard .ai-nexus-priority-v2 small{display:block;color:#7795aa;font-size:8px;margin-top:2px;line-height:1.45}
+body.ceo-dashboard .ai-signal-v2{padding:7px 0;border-top:1px solid rgba(103,164,207,.10)}
+body.ceo-dashboard .ai-signal-v2:first-of-type{border-top:0}
+body.ceo-dashboard .ai-signal-v2 b{display:block;color:#72eaff;font-size:9px}
+body.ceo-dashboard .ai-signal-v2 span{display:block;color:#7898ae;font-size:8px;line-height:1.45;margin-top:2px}
+body.ceo-dashboard .ai-team-v2{margin-top:10px;border-top:1px solid rgba(93,159,207,.14);padding-top:10px}
+body.ceo-dashboard .ai-team-v2-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px}
+body.ceo-dashboard .ai-team-v2-head h3{font-size:11px;color:#eaf7ff}
+body.ceo-dashboard .ai-team-v2-head span{font-size:8px;color:#718ba0}
+body.ceo-dashboard .ai-agent-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+body.ceo-dashboard .ai-agent{background:rgba(7,17,30,.72);border-color:rgba(82,151,199,.15);border-radius:12px;padding:9px}
+body.ceo-dashboard .ai-agent .axis-mini{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px}
+body.ceo-dashboard .ai-agent .axis-mini span{font-size:7px;padding:2px 4px;border-radius:6px;background:#10243a;color:#8fa8bb;border:1px solid #26435b}
+body.ceo-dashboard .ai-agent .axis-mini .good{color:#72e8c2;border-color:#2c6658}
+body.ceo-dashboard .ai-agent .axis-mini .warn{color:#ffd07b;border-color:#6a532d}
+body.ceo-dashboard .ai-agent .axis-mini .bad{color:#ff96a8;border-color:#703745}
+body.ceo-dashboard .ai-recovery-v2{margin-top:10px;display:grid;grid-template-columns:1.25fr .75fr;gap:8px}
+body.ceo-dashboard .ai-recovery-box-v2{border:1px solid rgba(75,145,194,.14);background:rgba(6,15,27,.66);border-radius:12px;padding:9px}
+body.ceo-dashboard .ai-recovery-box-v2 h3{font-size:10px;color:#dff4ff;margin-bottom:6px}
+body.ceo-dashboard .ai-recovery-item-v2{display:grid;grid-template-columns:58px 1fr;gap:7px;padding:6px 0;border-top:1px solid rgba(78,137,179,.09)}
+body.ceo-dashboard .ai-recovery-item-v2:first-of-type{border-top:0}
+body.ceo-dashboard .ai-recovery-item-v2 span{font-size:8px;font-weight:850;color:#f3c173}
+body.ceo-dashboard .ai-recovery-item-v2 b{display:block;font-size:9px;color:#deedf7}
+body.ceo-dashboard .ai-recovery-item-v2 small{display:block;color:#718da2;font-size:8px;line-height:1.4;margin-top:2px}
+body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;gap:9px;align-items:center;margin-top:10px;padding-top:9px;border-top:1px solid rgba(87,151,198,.13);font-size:8px;color:#66879f}
+@media(max-width:1200px){body.ceo-dashboard .ai-nexus-body-v2{grid-template-columns:1fr}body.ceo-dashboard .ai-agent-grid{grid-template-columns:repeat(3,minmax(0,1fr))}body.ceo-dashboard .ai-recovery-v2{grid-template-columns:1fr}}
+@media(max-width:760px){body.ceo-dashboard .ai-nexus-head-v2{grid-template-columns:auto 1fr}body.ceo-dashboard .ai-nexus-state-v2{grid-column:1/-1;align-items:flex-start;flex-direction:row}body.ceo-dashboard .ai-agent-grid{grid-template-columns:1fr}body.ceo-dashboard .ai-nexus-v2{padding:12px;border-radius:17px}body.ceo-dashboard .ai-nexus-foot-v2{display:block}}
+
+
 </style>
 </head>
 <body>
@@ -898,7 +963,7 @@ body.ceo-dashboard .empty{border-color:rgba(116,176,214,.16);background:rgba(7,1
 
     var note='<div class="ceo-note"><div class="ceo-legend"><span><i class="ceo-dot"></i>พร้อมใช้</span><span><i class="ceo-dot warn"></i>ต้อง Review</span><span><i class="ceo-dot bad"></i>Blocked / Missing</span><span><i class="ceo-dot missing"></i>Unknown</span></div><span>อ่านต้นทาง '+esc(sourceAt?fmtDate(sourceAt):'—')+'</span></div>';
 
-    function aiSeverityRank(s){s=String(s||'').toUpperCase();return s==='HIGH'?3:s==='MEDIUM'?2:s==='LOW'?1:0;}
+    function aiSeverityRank(s){s=String(s||'').toUpperCase();return s==='CRITICAL'?4:s==='HIGH'?3:s==='MEDIUM'?2:s==='LOW'?1:0;}
     function aiMatchesIssue(x,sources,cardIds){
       var src=String(x&&x.source_code||'').toUpperCase();
       var cid=String(x&&x.card_id||'');
@@ -909,44 +974,70 @@ body.ceo-dashboard .empty{border-color:rgba(116,176,214,.16);background:rgba(7,1
       var s=String(x.value_status||'').toUpperCase();
       return x.value_numeric!=null||(['READY','OK','KNOWN','ACTUAL'].indexOf(s)>=0);
     }
-    function aiAgent(name,sources,cardIds){
-      var agentIssues=state.issues.filter(function(x){return aiMatchesIssue(x,sources,cardIds);});
-      var agentCards=state.cards.filter(function(x){return cardIds.indexOf(String(x.card_id||''))>=0||sources.some(function(s){return String(x.source_code||'').toUpperCase().indexOf(s)>=0;});});
-      var high=agentIssues.filter(function(x){return String(x.severity||'').toUpperCase()==='HIGH';}).length;
-      var known=agentCards.filter(aiCardReady).length;
-      var readiness=agentCards.length?Math.round(known/agentCards.length*100):0;
-      var status=high?'ALERT':(agentIssues.length?'REVIEW':(agentCards.length?'READY':'WAITING'));
-      var cls=status==='ALERT'?'bad':status==='REVIEW'?'warn':status==='READY'?'good':'';
-      var value=agentIssues.length?agentIssues.length+' issue'+(agentIssues.length===1?'':'s'):(agentCards.length?readiness+'%':'—');
-      var noteText=agentIssues.length?(high?high+' HIGH · ต้องตรวจหลักฐานก่อนตัดสินใจ':'มี '+agentIssues.length+' ประเด็นที่ควร Review'):(agentCards.length?'Data readiness '+readiness+'%':'ยังไม่มีข้อมูลในขอบเขต Agent');
-      return '<article class="ai-agent"><div class="ai-agent-top"><span class="ai-agent-name">'+esc(name)+'</span><span class="ai-agent-status '+cls+'">'+esc(status)+'</span></div><div class="ai-agent-value">'+esc(value)+'</div><div class="ai-agent-note">'+esc(noteText)+'</div></article>';
+    function aiClass(s){
+      s=String(s||'').toUpperCase();
+      if(['READY','NORMAL','USE','GREEN'].indexOf(s)>=0)return 'good';
+      if(['BLOCKED','ALERT','RISK','RED'].indexOf(s)>=0)return 'bad';
+      return 'warn';
     }
-    var aiHigh=state.issues.filter(function(x){return String(x.severity||'').toUpperCase()==='HIGH';}).length;
-    var aiMedium=state.issues.filter(function(x){return String(x.severity||'').toUpperCase()==='MEDIUM';}).length;
-    var aiManagerStatus=aiHigh?'RED':((aiMedium||health<90)?'AMBER':'GREEN');
-    var aiManagerClass=aiManagerStatus==='RED'?'bad':aiManagerStatus==='AMBER'?'warn':'good';
-    var aiDecisionReadiness=aiHigh?'BLOCKED':((state.issues.length||Number(k.overdue_actions||0)>0)?'REVIEW':'READY');
-    var aiTop=state.issues.slice().sort(function(a,b){return aiSeverityRank(b.severity)-aiSeverityRank(a.severity);}).slice(0,3);
+    function aiScope(sources,cardIds){
+      var scopeIssues=state.issues.filter(function(x){return aiMatchesIssue(x,sources,cardIds);});
+      var scopeCards=state.cards.filter(function(x){return cardIds.indexOf(String(x.card_id||''))>=0||sources.some(function(s){return String(x.source_code||'').toUpperCase().indexOf(s)>=0;});});
+      var high=scopeIssues.filter(function(x){return aiSeverityRank(x.severity)>=3;}).length;
+      var known=scopeCards.filter(aiCardReady).length;
+      var readiness=scopeCards.length?Math.round(known/scopeCards.length*100):0;
+      return {
+        issues:scopeIssues,cards:scopeCards,high:high,readiness:readiness,
+        data:scopeCards.length?(readiness>=90?'READY':readiness>=60?'REVIEW':'BLOCKED'):'REVIEW',
+        business:high?'RISK':scopeIssues.length?'WATCH':'NORMAL',
+        decision:high?'BLOCKED':scopeIssues.length?'REVIEW':(scopeCards.length?'USE':'REVIEW')
+      };
+    }
+    function aiAgentV2(name,role,sources,cardIds){
+      var a=aiScope(sources,cardIds);
+      var headline=a.issues.length?(a.high?a.high+' HIGH':'Review '+a.issues.length):(a.cards.length?a.readiness+'% ready':'รอข้อมูล');
+      return '<article class="ai-agent"><div class="ai-agent-top"><span class="ai-agent-name">'+esc(name)+'</span><span class="ai-agent-status '+aiClass(a.decision)+'">'+esc(a.decision)+'</span></div><div class="ai-agent-value">'+esc(headline)+'</div><div class="ai-agent-note">'+esc(role)+'</div><div class="axis-mini"><span class="'+aiClass(a.data)+'">D '+esc(a.data)+'</span><span class="'+aiClass(a.business)+'">B '+esc(a.business)+'</span><span class="'+aiClass(a.decision)+'">G '+esc(a.decision)+'</span></div></article>';
+    }
+    var aiHigh=state.issues.filter(function(x){return aiSeverityRank(x.severity)>=3;}).length;
+    var aiMedium=state.issues.filter(function(x){return aiSeverityRank(x.severity)===2;}).length;
+    var aiManagerStatus=aiHigh?'RED':((aiMedium||health<90||Number(k.overdue_actions||0)>0)?'AMBER':'GREEN');
+    var aiDecisionReadiness=aiHigh?'BLOCKED':((state.issues.length||Number(k.overdue_actions||0)>0)?'REVIEW':'USE');
+    var aiBusinessImpact=aiHigh?'RISK':(state.issues.length?'WATCH':'NORMAL');
+    var aiDataHealth=health>=90?'READY':health>=60?'REVIEW':'BLOCKED';
+    var aiTop=state.issues.slice().sort(function(a,b){return aiSeverityRank(b.severity)-aiSeverityRank(a.severity);}).slice(0,4);
     var aiBrief=aiHigh
-      ?'พบ Data Issue ระดับ HIGH '+aiHigh+' รายการ ระบบยังไม่ควรสรุปข้ามแผนกเป็นคำสั่งอัตโนมัติ ให้ตรวจหลักฐานของรายการลำดับแรกก่อน: '+(aiTop[0]&&aiTop[0].title||'—')
+      ?'พบ Evidence ระดับ HIGH '+aiHigh+' รายการ จึงยังไม่ควรยกระดับเป็นคำสั่งอัตโนมัติ AI Manager จะคงสถานะ Blocked/Review จนกว่าหลักฐานจะครบ'
       :(state.issues.length
-        ?'ข้อมูลโดยรวมอยู่ในสถานะ Review มี '+state.issues.length+' ประเด็นที่ควรตรวจต่อ AI Manager จัดลำดับจาก Severity และ Decision Use โดยไม่สร้างตัวเลขทดแทน'
-        :'Snapshot ปัจจุบันไม่พบ Data Issue ตามกติกาที่ตั้งไว้ AI Manager พร้อมติดตาม Action และ Decision ต่อจากข้อมูลจริง');
+        ?'AI Manager พบ '+state.issues.length+' ประเด็นที่ต้อง Review และกำลังจัดลำดับจาก Severity, Decision Use และ Action ที่ค้าง โดยไม่สร้างค่าทดแทน'
+        :'Snapshot ปัจจุบันไม่พบ Data Issue ตามกติกาที่ตั้งไว้ ระบบพร้อมติดตาม Action/Decision และตรวจการเปลี่ยนแปลงรอบถัดไป');
     var aiPriority=aiTop.length?aiTop.map(function(x,i){
-      return '<div class="ai-priority-item"><span class="rank">0'+(i+1)+'</span><div><b>'+esc(x.title||'Data issue')+'</b><small>'+esc((x.source_code||'UNKNOWN')+' · '+(x.severity||'REVIEW')+' · '+(x.decision_use||'ตรวจหลักฐาน'))+'</small></div></div>';
-    }).join(''):'<div class="ai-priority-item"><span class="rank">01</span><div><b>ไม่มีประเด็นในคิว</b><small>AI Manager จะสร้างคิวเมื่อพบ Issue จาก Snapshot</small></div></div>';
+      return '<div class="ai-nexus-priority-v2 '+(aiSeverityRank(x.severity)>=3?'high':'')+'"><i></i><div><b>'+esc((i+1)+'. '+(x.title||'Data issue'))+'</b><small>'+esc((x.source_code||'UNKNOWN')+' · '+(x.severity||'REVIEW')+' · '+(x.decision_use||'ตรวจหลักฐาน'))+'</small></div></div>';
+    }).join(''):'<div class="ai-nexus-priority-v2"><i></i><div><b>ยังไม่มี Priority ที่ยืนยันได้</b><small>ระบบจะไม่สร้าง Priority จากข้อมูลที่ไม่มีหลักฐาน</small></div></div>';
+    var aiSignals=[
+      {label:'Demand → Factory',text:'Orders / Forecast เทียบกับ Capacity และ WIP แบบ cross-domain โดยแยกฐานข้อมูลเดิม'},
+      {label:'Factory → Delivery',text:'WIP / QA / FG ถูกอ่านร่วมเพื่อชี้ความเสี่ยงส่งมอบ แต่ไม่อ้าง causality อัตโนมัติ'},
+      {label:'Operations → Finance',text:'AR / AP / Purchase ถูกแสดงร่วมกับ Operational risk โดยไม่รวมยอดต่างฐาน'}
+    ];
+    var aiSignalHtml=aiSignals.map(function(s){return '<div class="ai-signal-v2"><b>'+esc(s.label)+'</b><span>'+esc(s.text)+'</span></div>';}).join('');
+    var recovery=aiTop.slice(0,4).map(function(x){
+      return '<div class="ai-recovery-item-v2"><span>'+esc(x.severity||'REVIEW')+'</span><div><b>'+esc(x.title||'Data issue')+'</b><small>'+esc('ตรวจ '+(x.source_code||'source')+' · '+(x.basis||'ปิด Evidence ที่ยังไม่ครบ'))+'</small></div></div>';
+    }).join('')||'<div class="ai-recovery-item-v2"><span>READY</span><div><b>ไม่มี Evidence Action ใหม่</b><small>ติดตาม Snapshot และ Action เดิมต่อ</small></div></div>';
+    var safeRepair='<div class="ai-recovery-item-v2"><span>SAFE</span><div><b>Auto-repair จำกัดเฉพาะ Data hygiene</b><small>ไม่แก้ราคา Qty PO หรือ Decision ธุรกิจเอง</small></div></div>';
     var aiCommand='<section class="ai-command" aria-label="AI Management OS">'+
-      '<div class="ai-manager"><div class="ai-manager-head"><div><div class="eyebrow">AI EXECUTIVE ADVISOR</div><h2>AI MANAGER · Evidence-first</h2></div><span class="ai-manager-state '+aiManagerClass+'">● '+aiManagerStatus+'</span></div>'+
-      '<div class="ai-manager-brief">'+esc(aiBrief)+'</div>'+
-      '<div class="ai-manager-metrics"><div class="ai-manager-metric"><span>Decision Readiness</span><b>'+esc(aiDecisionReadiness)+'</b></div><div class="ai-manager-metric"><span>Data Readiness</span><b>'+esc(health)+'%</b></div><div class="ai-manager-metric"><span>Open / Overdue Action</span><b>'+esc(k.open_actions||0)+' / '+esc(k.overdue_actions||0)+'</b></div></div></div>'+
-      '<div class="ai-agents-panel"><div class="ai-agents-head"><h2>AI Management Team</h2><span>วิเคราะห์จาก Snapshot + Data Issue ปัจจุบัน · ไม่มี paid AI call</span></div>'+
-      '<div class="ai-agent-grid">'+
-        aiAgent('Production AI',['OEE','PC','PD','QA'],['capacity','wip','qaFinal','fac2','plating'])+
-        aiAgent('Finance AI',['FIN'],['ar','ap','purchase'])+
-        aiAgent('Supply Chain AI',['SO','SC','PR','PU'],['orders','forecast','material','tooling','fg','purchase'])+
-        aiAgent('Data Quality AI',[],state.cards.map(function(x){return String(x.card_id||'');}))+
-        aiAgent('AI Auditor',[],state.cards.filter(function(x){return String(x.decision_use||'').toUpperCase()==='BLOCKED';}).map(function(x){return String(x.card_id||'');}))+
-      '</div><div class="ai-priority">'+aiPriority+'</div></div></section>';
+      '<div class="ai-nexus-v2">'+
+        '<div class="ai-nexus-head-v2"><div class="ai-nexus-core-v2"><span>NEXUS</span></div><div><div class="ai-nexus-kicker-v2">P&T AI MANAGEMENT OS · EVIDENCE MODE</div><h2>AI MANAGER · Executive Reasoning Layer</h2><p>Sales → Order → Production → QA → Inventory → Purchasing → Finance · deterministic evidence first</p></div><div class="ai-nexus-state-v2"><span class="ai-nexus-status-v2 '+aiClass(aiManagerStatus)+'">● '+esc(aiManagerStatus)+'</span><span class="small muted">NO PAID AI CALL</span></div></div>'+
+        '<div class="ai-nexus-body-v2"><div class="ai-nexus-brief-v2"><div class="ai-axis-v2"><span class="'+aiClass(aiDataHealth)+'">DATA '+esc(aiDataHealth)+'</span><span class="'+aiClass(aiBusinessImpact)+'">BUSINESS '+esc(aiBusinessImpact)+'</span><span class="'+aiClass(aiDecisionReadiness)+'">DECISION '+esc(aiDecisionReadiness)+'</span><span>READINESS '+esc(health)+'%</span></div><h3>CEO Intelligence Brief</h3><div class="ai-nexus-summary-v2">'+esc(aiBrief)+'</div><div class="ai-nexus-priorities-v2">'+aiPriority+'</div></div>'+
+        '<aside class="ai-nexus-side-v2"><h3>Cross-domain Signals</h3>'+aiSignalHtml+'<div class="ai-signal-v2"><b>Guardrail</b><span>Missing ≠ 0 · Review/Blocked จะไม่ถูกยกสถานะเอง · Signal ไม่ถือเป็น Root Cause จนกว่าจะมี Evidence รองรับ</span></div></aside></div>'+
+        '<div class="ai-team-v2"><div class="ai-team-v2-head"><h3>AI Manager + Specialist Agents</h3><span>Data / Business / Gate แยกคนละแกน</span></div><div class="ai-agent-grid">'+
+          aiAgentV2('Production AI','Capacity · OEE · WIP · QA',['OEE','PC','PD','QA'],['capacity','wip','qaFinal','fac2','plating'])+
+          aiAgentV2('Finance AI','AR · AP · Cash evidence',['FIN'],['ar','ap'])+
+          aiAgentV2('Supply Chain AI','Orders · Material · Purchase',['SO','SC','PR','PU'],['orders','forecast','material','tooling','fg','purchase'])+
+          aiAgentV2('Data Steward','Data quality · freshness',[],state.cards.map(function(x){return String(x.card_id||'');}))+
+          aiAgentV2('AI Auditor','Decision gate · evidence',[],state.cards.filter(function(x){return ['BLOCKED','REVIEW'].indexOf(String(x.decision_use||'').toUpperCase())>=0;}).map(function(x){return String(x.card_id||'');}))+
+        '</div></div>'+
+        '<div class="ai-recovery-v2"><div class="ai-recovery-box-v2"><h3>Decision Recovery · Top Evidence Actions</h3>'+recovery+'</div><div class="ai-recovery-box-v2"><h3>Safe Autonomous Boundary</h3>'+safeRepair+'</div></div>'+
+        '<div class="ai-nexus-foot-v2"><span>Snapshot '+esc(k.current_month||'—')+' · Source read '+esc(sourceAt?fmtDate(sourceAt):'—')+'</span><span>Open '+esc(k.open_actions||0)+' · Overdue '+esc(k.overdue_actions||0)+' · Draft Decision '+esc(k.draft_decisions||0)+'</span></div>'+
+      '</div></section>';
 
 
     function aiSourceFamily(x){
