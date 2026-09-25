@@ -659,6 +659,48 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
 @media(max-width:760px){body.ceo-dashboard .ai-nexus-head-v2{grid-template-columns:auto 1fr}body.ceo-dashboard .ai-nexus-state-v2{grid-column:1/-1;align-items:flex-start;flex-direction:row}body.ceo-dashboard .ai-agent-grid{grid-template-columns:1fr}body.ceo-dashboard .ai-nexus-v2{padding:12px;border-radius:17px}body.ceo-dashboard .ai-nexus-foot-v2{display:block}}
 
 
+
+/* CEO DAILY OPERATING CONTROL V5 */
+body.ceo-dashboard .ceo-daily-control{margin:0 0 14px;padding:18px;border:1px solid rgba(113,203,238,.18);border-radius:22px;background:linear-gradient(145deg,rgba(11,24,41,.94),rgba(7,16,29,.9));box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 20px 48px rgba(0,0,0,.15)}
+body.ceo-dashboard .ceo-daily-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:14px}
+body.ceo-dashboard .ceo-daily-head h2{color:#eef8ff;font-size:18px;margin:2px 0 5px}
+body.ceo-dashboard .ceo-daily-head p{color:#839ab0;font-size:10px;line-height:1.6;max-width:850px}
+body.ceo-dashboard .ceo-decision-gate{min-width:190px;padding:10px 13px;border:1px solid #32465a;border-radius:12px;background:#0b1727;display:grid;gap:3px}
+body.ceo-dashboard .ceo-decision-gate span{font-size:8px;letter-spacing:1.2px;color:#7f96ab}
+body.ceo-dashboard .ceo-decision-gate b{font-size:12px;color:#dceaf6}
+body.ceo-dashboard .ceo-decision-gate.good{border-color:rgba(97,225,201,.35)}
+body.ceo-dashboard .ceo-decision-gate.warn{border-color:rgba(240,204,145,.36)}
+body.ceo-dashboard .ceo-decision-gate.bad{border-color:rgba(239,118,135,.42);box-shadow:0 0 28px rgba(216,76,100,.08)}
+body.ceo-dashboard .ceo-trust-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
+body.ceo-dashboard .ceo-trust-grid>div{padding:10px 12px;border:1px solid #20374c;border-radius:11px;background:#0b192a}
+body.ceo-dashboard .ceo-trust-grid span{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.9px;color:#718ba3}
+body.ceo-dashboard .ceo-trust-grid b{display:block;margin:3px 0 2px;color:#eff8ff;font-size:16px}
+body.ceo-dashboard .ceo-trust-grid small{font-size:8px;color:#7890a7}
+body.ceo-dashboard .ceo-pulse-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:10px}
+body.ceo-dashboard .ceo-pulse-card{min-width:0;padding:11px;border:1px solid #223a50;border-radius:12px;background:linear-gradient(180deg,#0d1d30,#0a1727)}
+body.ceo-dashboard .ceo-pulse-top{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;color:#92abc0;font-size:9px}
+body.ceo-dashboard .ceo-pulse-card>strong{display:block;margin:8px 0 5px;font-size:18px;line-height:1;color:#f3f9ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ceo-dashboard .ceo-pulse-foot{display:flex;align-items:center;gap:6px;font-size:9px}
+body.ceo-dashboard .ceo-pulse-foot small{color:#70879e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ceo-dashboard .ceo-pulse-card p{margin-top:7px;padding-top:7px;border-top:1px solid #1f3549;color:#718aa1;font-size:8px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body.ceo-dashboard .up{color:#68dfc7}.down{color:#f1aa78}.neutral{color:#8499ad}
+body.ceo-dashboard .ceo-priority-box{border:1px solid #21384e;border-radius:13px;background:#091625;overflow:hidden}
+body.ceo-dashboard .ceo-priority-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 13px;border-bottom:1px solid #20364b}
+body.ceo-dashboard .ceo-priority-head h3{font-size:11px;color:#e9f5fe}
+body.ceo-dashboard .ceo-priority-head p{font-size:8px;color:#6f879d;margin-top:2px}
+body.ceo-dashboard .ceo-priority-head>span{font-size:9px;color:#74dff5}
+body.ceo-dashboard .ceo-priority-list{display:grid}
+body.ceo-dashboard .ceo-priority-item{display:grid;grid-template-columns:34px minmax(0,1fr) 42px;gap:9px;align-items:center;padding:9px 12px;border-bottom:1px solid rgba(49,72,94,.45)}
+body.ceo-dashboard .ceo-priority-item:last-child{border-bottom:0}
+body.ceo-dashboard .ceo-priority-item .rank{font:700 9px ui-monospace,monospace;color:#5f829d}
+body.ceo-dashboard .ceo-priority-item .title{display:flex;gap:8px;align-items:center}.ceo-priority-item .title b{font-size:10px;color:#dcebf7}.ceo-priority-item .title span{font-size:8px;color:#6f8aa1}
+body.ceo-dashboard .ceo-priority-item small{display:block;margin-top:2px;color:#7991a7;font-size:8px}
+body.ceo-dashboard .ceo-priority-item .meta{display:flex;gap:10px;margin-top:3px;font-size:8px;color:#617b92}
+body.ceo-dashboard .ceo-priority-item .score{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#10283b;border:1px solid #28506a;color:#8be4f6;font:700 10px ui-monospace,monospace}
+@media(max-width:1280px){body.ceo-dashboard .ceo-pulse-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){body.ceo-dashboard .ceo-trust-grid{grid-template-columns:repeat(2,minmax(0,1fr))}body.ceo-dashboard .ceo-daily-head{display:grid}body.ceo-dashboard .ceo-decision-gate{min-width:0}}
+@media(max-width:650px){body.ceo-dashboard .ceo-pulse-grid,body.ceo-dashboard .ceo-trust-grid{grid-template-columns:1fr}body.ceo-dashboard .ceo-priority-item{grid-template-columns:28px minmax(0,1fr) 38px}}
+
 </style>
 </head>
 <body>
@@ -753,8 +795,9 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
 (function(){
   var SUPABASE_URL='https://ghpkuhrkxuukztwlgudq.supabase.co';
   var SUPABASE_KEY='sb_publishable_cy41OPYufMjzbCvBiVrIzA_H8IRDB1A';
+  var APPS_SCRIPT_WEB_APP_URL='<?= appUrl ?>';
   var STORAGE_KEY='pandt_bos_management_session_v1';
-  var state={session:null,user:null,access:null,kpis:null,cards:[],issues:[],actions:[],decisions:[],page:'dashboard',loading:false};
+  var state={session:null,user:null,access:null,kpis:null,cards:[],history:[],issues:[],actions:[],decisions:[],page:'dashboard',loading:false};
   var pageInfo={
     dashboard:['ภาพรวมผู้บริหาร','มองสถานะธุรกิจ ประเด็น Action และ Decision ในหน้าจอเดียว'],
     issues:['ประเด็นข้อมูล','รายการข้อมูลที่ยังไม่พร้อมหรือควรตรวจสอบก่อนใช้ตัดสินใจ'],
@@ -847,17 +890,41 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
       await api('bos_audit_events',{method:'POST',headers:{Prefer:'return=minimal'},body:{user_id:state.user.id,event_type:eventType,detail:detail||{}}});
     }catch(e){}
   }
-  async function requestPasswordRecovery(email){
-    var redirect=location.origin+location.pathname;
-    return authFetch('/auth/v1/recover?redirect_to='+encodeURIComponent(redirect),{email:email});
+  function stableWebAppUrl(){
+    var candidate=String(APPS_SCRIPT_WEB_APP_URL||'').trim();
+    if(candidate&&candidate.indexOf('<?')!==0)return candidate;
+    return location.origin+location.pathname;
   }
-  function recoverySessionFromHash(){
-    var raw=(location.hash||'').replace(/^#/,'');if(!raw)return false;
+  function appsScriptLocationHash(){
+    return new Promise(function(resolve){
+      try{
+        if(typeof google!=='undefined'&&google.script&&google.script.url&&google.script.url.getLocation){
+          google.script.url.getLocation(function(loc){resolve((loc&&loc.hash)||'');});
+          return;
+        }
+      }catch(e){}
+      resolve((location.hash||'').replace(/^#/,''));
+    });
+  }
+  function clearRecoveryHash(){
+    try{
+      if(typeof google!=='undefined'&&google.script&&google.script.history&&google.script.history.replace){
+        google.script.history.replace({},null,'');
+        return;
+      }
+    }catch(e){}
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  async function requestPasswordRecovery(email){
+    return authFetch('/auth/v1/recover?redirect_to='+encodeURIComponent(stableWebAppUrl()),{email:email});
+  }
+  async function recoverySessionFromHash(){
+    var raw=await appsScriptLocationHash();if(!raw)return false;
     var p=new URLSearchParams(raw);
     if(p.get('type')!=='recovery'||!p.get('access_token'))return false;
     var s={access_token:p.get('access_token'),refresh_token:p.get('refresh_token')||'',user:null,recovery:true};
     state.session=s;
-    history.replaceState(null,'',location.pathname+location.search);
+    clearRecoveryHash();
     $('recoveryBox').classList.add('show');
     $('recoveryIntro').classList.add('hidden');
     $('recoverySet').classList.remove('hidden');
@@ -895,13 +962,15 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
         api('bos_current_snapshot_cards?select=*&order=source_code.asc,title.asc'),
         api('bos_current_data_issues?select=*'),
         api('bos_action_items?select=*&order=created_at.desc'),
-        api('bos_decisions?select=*&order=created_at.desc')
+        api('bos_decisions?select=*&order=created_at.desc'),
+        api('bos_snapshot_card_history?select=*&order=source_read_at.desc&limit=640')
       ]);
       state.kpis=Array.isArray(results[0])&&results[0][0]?results[0][0]:{};
       state.cards=results[1]||[];
       state.issues=(results[2]||[]).sort(function(a,b){var w={HIGH:3,MEDIUM:2,LOW:1};return (w[b.severity]||0)-(w[a.severity]||0);});
       state.actions=results[3]||[];
       state.decisions=results[4]||[];
+      state.history=results[5]||[];
       updateShell();render();
     }finally{setBusy(false);}
   }
@@ -913,9 +982,12 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
     document.querySelectorAll('.write-only').forEach(function(el){el.classList.toggle('hidden',!canWrite);});
     document.body.dataset.owner=owner?'1':'0';
     var sourceAt=state.cards[0]&&state.cards[0].source_read_at;
-    $('asOfTop').textContent=sourceAt?'Snapshot อ่านต้นทางถึง '+fmtDate(sourceAt):'ยังไม่พบ Snapshot';
+    var sourceAge=snapshotAgeDays();
+    var sourceLabel=sourceAge==null?'ไม่ทราบอายุข้อมูล':sourceAge===0?'อ่านต้นทางวันนี้':'อ่านต้นทาง '+sourceAge+' วันก่อน';
+    $('asOfTop').textContent=sourceAt?'Snapshot '+sourceLabel+' · '+fmtDate(sourceAt):'ยังไม่พบ Snapshot';
     var banner=$('freshnessBanner');
-    banner.innerHTML='<strong>สถานะข้อมูลธุรกิจ</strong><span>'+(sourceAt?'Snapshot ล่าสุด '+esc(state.kpis.current_month||'—')+' · อ่านต้นทางถึง '+fmtDate(sourceAt)+' · Action/Decision ด้านล่างเป็น Live ใน Supabase':'ยังไม่มี Snapshot ธุรกิจ แต่ระบบ Action/Decision ยังใช้งานได้')+'</span>';
+    var caution=sourceAge!=null&&sourceAge>3?' · ข้อมูลเกิน 3 วัน: ห้ามตีความว่าเป็นสถานะวันนี้':'';
+    banner.innerHTML='<strong>สถานะข้อมูลธุรกิจ</strong><span>'+(sourceAt?'Snapshot '+esc(state.kpis.current_month||'—')+' · '+esc(sourceLabel)+' · Action/Decision เป็น Live ใน Supabase'+esc(caution):'ยังไม่มี Snapshot ธุรกิจ แต่ระบบ Action/Decision ยังใช้งานได้')+'</span>';
   }
   function currentCard(id){return state.cards.find(function(x){return x.card_id===id;})||null;}
 
@@ -929,6 +1001,75 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
   function valuePct(c,max){
     if(!c||c.value_numeric==null||!max)return 0;
     return Math.max(3,Math.min(100,Number(c.value_numeric)/max*100));
+  }
+  function ageDays(v){
+    if(!v)return null;
+    var d=new Date(String(v).length===10?String(v)+'T23:59:59':v);
+    if(Number.isNaN(d.getTime()))return null;
+    return Math.max(0,Math.floor((Date.now()-d.getTime())/86400000));
+  }
+  function snapshotAgeDays(){
+    var values=state.cards.map(function(c){return c.source_read_at;}).filter(Boolean);
+    if(!values.length)return null;
+    var latest=values.map(function(v){return new Date(v).getTime();}).filter(Number.isFinite).sort(function(a,b){return b-a;})[0];
+    return latest?Math.max(0,Math.floor((Date.now()-latest)/86400000)):null;
+  }
+  function effectiveFreshness(c){
+    if(!c)return 'UNKNOWN';
+    var sourceAge=ageDays(c.source_read_at);
+    var dataAge=ageDays(c.data_as_of);
+    var declared=String(c.freshness_status||'').toUpperCase();
+    if(sourceAge!=null&&sourceAge>3)return 'SOURCE_STALE';
+    if(declared==='NO_PERIOD_DATA'||declared==='PERIOD_LAG')return 'PERIOD_LAG';
+    if(declared==='STALE_EVENT_DATA')return 'STALE_EVENT_DATA';
+    if(dataAge!=null&&dataAge>14)return 'DATA_STALE';
+    if(sourceAge!=null&&sourceAge>1)return 'REVIEW';
+    return declared||'CURRENT';
+  }
+  function previousComparable(c){
+    if(!c||!state.history.length)return null;
+    var currentMonth=String(state.kpis&&state.kpis.current_month||'');
+    return state.history.filter(function(h){
+      return h.card_id===c.card_id&&h.value_numeric!=null&&String(h.month||'')!==currentMonth;
+    }).sort(function(a,b){return String(b.month||'').localeCompare(String(a.month||''));})[0]||null;
+  }
+  function trendMeta(c){
+    if(!c||c.value_numeric==null)return {label:'—',detail:'ไม่มีค่าปัจจุบัน',className:'neutral'};
+    var prev=previousComparable(c); if(!prev||prev.value_numeric==null)return {label:'—',detail:'ยังไม่มีฐานเปรียบเทียบ',className:'neutral'};
+    var now=Number(c.value_numeric), before=Number(prev.value_numeric);
+    if(!Number.isFinite(now)||!Number.isFinite(before))return {label:'—',detail:'ค่าฐานไม่ใช่ตัวเลข',className:'neutral'};
+    var delta=now-before;
+    var pct=before!==0?delta/Math.abs(before)*100:null;
+    var sign=delta>0?'+':delta<0?'−':'';
+    return {
+      label:sign+(pct==null?Math.abs(delta).toLocaleString('th-TH',{maximumFractionDigits:2}):Math.abs(pct).toLocaleString('th-TH',{maximumFractionDigits:1})+'%'),
+      detail:'เทียบ '+String(prev.month||'ช่วงก่อนหน้า'),
+      className:delta>0?'up':delta<0?'down':'neutral'
+    };
+  }
+  function evidencePriorityScore(c){
+    if(!c)return 0;
+    var score=0, status=String(c.value_status||'').toUpperCase(), fresh=effectiveFreshness(c);
+    if(fresh==='SOURCE_STALE')score+=45;
+    else if(fresh==='DATA_STALE'||fresh==='STALE_EVENT_DATA')score+=30;
+    else if(fresh==='PERIOD_LAG')score+=24;
+    else if(fresh==='REVIEW')score+=12;
+    if(status.indexOf('NO_')===0||status==='UNKNOWN')score+=28;
+    if(status.indexOf('PARTIAL')===0)score+=22;
+    if(status==='REFERENCE_ONLY')score+=8;
+    score+=Math.min(15,Number(c.operational_unknown_rows||0)>0?8+Math.log10(Number(c.operational_unknown_rows||0)+1)*3:0);
+    score+=Math.min(15,Number(c.valuation_unknown_rows||0)>0?8+Math.log10(Number(c.valuation_unknown_rows||0)+1)*3:0);
+    if(['orders','ar','ap','fg','purchase','capacity','qaFinal'].indexOf(String(c.card_id||''))>=0)score+=10;
+    return Math.round(score);
+  }
+  function evidenceReasons(c){
+    var out=[], fresh=effectiveFreshness(c), s=String(c.value_status||'').toUpperCase();
+    if(fresh!=='CURRENT')out.push(fresh);
+    if(s.indexOf('PARTIAL')===0)out.push('PARTIAL');
+    if(s.indexOf('NO_')===0)out.push(s);
+    if(Number(c.operational_unknown_rows||0)>0)out.push('Op unknown '+Number(c.operational_unknown_rows).toLocaleString('th-TH'));
+    if(Number(c.valuation_unknown_rows||0)>0)out.push('Value unknown '+Number(c.valuation_unknown_rows).toLocaleString('th-TH'));
+    return out.length?out.join(' · '):'Evidence พร้อมตามกติกาปัจจุบัน';
   }
   function dashboard(){
     var k=state.kpis||{};
@@ -944,9 +1085,12 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
     var health=Math.max(0,Math.min(100,Math.round((cards-issues)/Math.max(cards,1)*100)));
     var month=esc(k.current_month||'—');
     var sourceAt=state.cards[0]&&state.cards[0].source_read_at;
+    var sourceAge=snapshotAgeDays();
+    var runtimeStaleCards=state.cards.filter(function(c){return effectiveFreshness(c)!=='CURRENT';}).length;
+    var decisionGate=sourceAge!=null&&sourceAge>3?'BLOCKED BY FRESHNESS':(issues?'REVIEW':'USE');
     var heroArt='<svg class="ceo-hero-art" viewBox="0 0 260 128" aria-hidden="true"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#5f8fdc"/><stop offset="1" stop-color="#66c1c0"/></linearGradient></defs><rect x="18" y="24" width="220" height="82" rx="16" fill="#fff" opacity=".7"/><path d="M37 87 L78 58 L111 72 L150 42 L205 56" fill="none" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/><circle cx="78" cy="58" r="6" fill="#4d8fe6"/><circle cx="150" cy="42" r="6" fill="#59aaa7"/><rect x="42" y="93" width="40" height="5" rx="2.5" fill="#cad8ec"/><rect x="91" y="93" width="64" height="5" rx="2.5" fill="#cad8ec"/><rect x="164" y="93" width="47" height="5" rx="2.5" fill="#cad8ec"/></svg>';
-    var heroStatus=issues?'REVIEW':'READY';
-    var hero='<section class="ceo-hero neo-hero"><div class="neo-hero-copy"><div class="eyebrow">P&T / AI EXECUTIVE COMMAND CENTER</div><h1>Business intelligence that thinks in operating context.</h1><p>มองสถานะธุรกิจ โรงงาน การเงิน ความพร้อมของข้อมูล และสิ่งที่ต้องตัดสินใจจากหลักฐานชุดเดียวกัน — Unknown ยังคงเป็น Unknown และทุกคำแนะนำต้องตรวจย้อนกลับได้</p><div class="ceo-hero-tags"><span>AI Management OS v4</span><span>'+month+'</span><span>'+esc(cards)+' Business Cards</span><span>Supabase RLS</span></div><div class="neo-command-meta"><div><span>System state</span><b>'+esc(heroStatus)+'</b></div><div><span>Data issues</span><b>'+esc(issues)+'</b></div><div><span>Open actions</span><b>'+esc(k.open_actions||0)+'</b></div><div><span>Snapshot</span><b>'+esc(sourceAt?fmtDate(sourceAt):'—')+'</b></div></div></div><div class="neo-core"><div class="neo-orb" style="--p:'+health+'"><div class="neo-orb-content"><strong>'+health+'%</strong><span>DATA READINESS</span></div></div><div class="neo-core-foot"><span>AI CORE</span><b>'+esc(heroStatus)+'</b><span>EVIDENCE-FIRST</span></div></div></section>';
+    var heroStatus=decisionGate==='USE'?'READY':decisionGate;
+    var hero='<section class="ceo-hero neo-hero"><div class="neo-hero-copy"><div class="eyebrow">P&T / AI EXECUTIVE COMMAND CENTER</div><h1>Business intelligence that thinks in operating context.</h1><p>มองสถานะธุรกิจ โรงงาน การเงิน ความพร้อมของข้อมูล และสิ่งที่ต้องตัดสินใจจากหลักฐานชุดเดียวกัน — Unknown ยังคงเป็น Unknown และทุกคำแนะนำต้องตรวจย้อนกลับได้</p><div class="ceo-hero-tags"><span>AI Management OS v5</span><span>'+month+'</span><span>'+esc(cards)+' Business Cards</span><span>Supabase RLS</span></div><div class="neo-command-meta"><div><span>System state</span><b>'+esc(heroStatus)+'</b></div><div><span>Data issues</span><b>'+esc(issues)+'</b></div><div><span>Open actions</span><b>'+esc(k.open_actions||0)+'</b></div><div><span>Snapshot age</span><b>'+esc(sourceAge==null?'—':sourceAge+' วัน')+'</b></div></div></div><div class="neo-core"><div class="neo-orb" style="--p:'+health+'"><div class="neo-orb-content"><strong>'+health+'%</strong><span>DATA READINESS</span></div></div><div class="neo-core-foot"><span>AI CORE</span><b>'+esc(heroStatus)+'</b><span>EVIDENCE-FIRST</span></div></div></section>';
 
     function refKpi(card,icon,path){
       var value=card?fmtValue(card):'—';
@@ -962,6 +1106,33 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
       '</div>';
 
     var note='<div class="ceo-note"><div class="ceo-legend"><span><i class="ceo-dot"></i>พร้อมใช้</span><span><i class="ceo-dot warn"></i>ต้อง Review</span><span><i class="ceo-dot bad"></i>Blocked / Missing</span><span><i class="ceo-dot missing"></i>Unknown</span></div><span>อ่านต้นทาง '+esc(sourceAt?fmtDate(sourceAt):'—')+'</span></div>';
+
+    var opUnknown=state.cards.reduce(function(sum,c){return sum+Number(c.operational_unknown_rows||0);},0);
+    var valUnknown=state.cards.reduce(function(sum,c){return sum+Number(c.valuation_unknown_rows||0);},0);
+    var currentCount=state.cards.filter(function(c){return effectiveFreshness(c)==='CURRENT';}).length;
+    var reviewQueue=state.cards.slice().sort(function(a,b){return evidencePriorityScore(b)-evidencePriorityScore(a);}).slice(0,5);
+    function pulseCard(c,label){
+      var trend=trendMeta(c), fresh=effectiveFreshness(c);
+      return '<article class="ceo-pulse-card"><div class="ceo-pulse-top"><span>'+esc(label||c&&c.title||'—')+'</span>'+badge(fresh)+'</div><strong>'+esc(c?fmtValue(c):'—')+'</strong><div class="ceo-pulse-foot"><span class="'+esc(trend.className)+'">'+esc(trend.label)+'</span><small>'+esc(trend.detail)+'</small></div><p>'+esc(c&&c.basis||'ยังไม่มี Evidence พร้อมใช้')+'</p></article>';
+    }
+    var priorityHtml=reviewQueue.map(function(c,i){
+      var score=evidencePriorityScore(c), trend=trendMeta(c);
+      return '<div class="ceo-priority-item"><span class="rank">0'+(i+1)+'</span><div class="body"><div class="title"><b>'+esc(c.title)+'</b><span>'+esc(c.source_code||'—')+'</span></div><small>'+esc(evidenceReasons(c))+'</small><div class="meta"><span>'+esc(c.data_as_of||'ไม่ทราบ Data as-of')+'</span><span class="'+esc(trend.className)+'">'+esc(trend.label)+' '+esc(trend.detail)+'</span></div></div><div class="score">'+esc(score)+'</div></div>';
+    }).join('');
+    var sourceTrust=sourceAge==null?'UNKNOWN':sourceAge<=1?'CURRENT':sourceAge<=3?'REVIEW':'STALE';
+    var dailyControl='<section class="ceo-daily-control" aria-label="CEO daily operating control">'+
+      '<div class="ceo-daily-head"><div><span class="eyebrow">CEO 5-MINUTE CONTROL</span><h2>สถานะที่ควรรู้ก่อนตัดสินใจวันนี้</h2><p>ระบบแยก “สถานะธุรกิจ” ออกจาก “ความสด/ความครบของหลักฐาน” เพื่อไม่ให้ข้อมูลเก่าดูเหมือนข้อมูลวันนี้</p></div><div class="ceo-decision-gate '+(decisionGate==='USE'?'good':decisionGate.indexOf('BLOCKED')===0?'bad':'warn')+'"><span>DECISION GATE</span><b>'+esc(decisionGate)+'</b></div></div>'+
+      '<div class="ceo-trust-grid"><div><span>Source freshness</span><b>'+esc(sourceTrust)+'</b><small>'+esc(sourceAge==null?'ไม่พบ timestamp':sourceAge+' วันจากการอ่านต้นทางล่าสุด')+'</small></div><div><span>Current cards</span><b>'+esc(currentCount)+' / '+esc(cards)+'</b><small>'+esc(runtimeStaleCards)+' cards ต้องตรวจ freshness</small></div><div><span>Data issues</span><b>'+esc(issues)+'</b><small>จากกติกา Snapshot ปัจจุบัน</small></div><div><span>Unknown rows</span><b>'+esc((opUnknown+valUnknown).toLocaleString('th-TH'))+'</b><small>Operational '+esc(opUnknown.toLocaleString('th-TH'))+' · Valuation '+esc(valUnknown.toLocaleString('th-TH'))+'</small></div></div>'+
+      '<div class="ceo-pulse-grid">'+
+        pulseCard(orders,'Open Orders / Backlog')+
+        pulseCard(fg,'FG')+
+        pulseCard(capacity,'Capacity')+
+        pulseCard(ar,'Accounts Receivable')+
+        pulseCard(ap,'Accounts Payable')+
+        pulseCard(purchase,'Purchase Pending')+
+      '</div>'+
+      '<div class="ceo-priority-box"><div class="ceo-priority-head"><div><h3>Evidence Review Queue</h3><p>เรียงจาก freshness + missing + valuation uncertainty ไม่ใช่การจัดอันดับความรุนแรงของธุรกิจ</p></div><span>'+esc(reviewQueue.length)+' รายการ</span></div><div class="ceo-priority-list">'+priorityHtml+'</div></div>'+
+      '</section>';
 
     function aiSeverityRank(s){s=String(s||'').toUpperCase();return s==='CRITICAL'?4:s==='HIGH'?3:s==='MEDIUM'?2:s==='LOW'?1:0;}
     function aiMatchesIssue(x,sources,cardIds){
@@ -1192,7 +1363,7 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
       '<div class="grid4" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="kpi"><div class="label">Open Action</div><div class="value">'+esc(k.open_actions||0)+'</div><div class="sub">กำลังติดตาม</div></div><div class="kpi"><div class="label">Overdue</div><div class="value">'+esc(k.overdue_actions||0)+'</div><div class="sub">เลยกำหนด</div></div><div class="kpi"><div class="label">Draft Decision</div><div class="value">'+esc(k.draft_decisions||0)+'</div><div class="sub">รออนุมัติ</div></div><div class="kpi"><div class="label">Approved</div><div class="value">'+esc(k.approved_decisions||0)+'</div><div class="sub">อนุมัติแล้ว</div></div></div>'+
       '</section></div></section>';
 
-    return hero+topStrip+aiCommand+aiV2+aiV3+note+capitalMap+charts+kpis+actions;
+    return hero+topStrip+dailyControl+aiCommand+aiV2+aiV3+note+capitalMap+charts+kpis+actions;
   }
   function issueItem(x){
     var canWrite=state.access&&['OWNER','EXECUTIVE'].includes(state.access.role);
@@ -1225,8 +1396,8 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
   }
   function cards(){
     return '<section class="card"><div class="section-head"><div><h2>Business Cards 32 ด้าน</h2><p class="small muted">Snapshot '+esc(state.kpis&&state.kpis.current_month||'—')+' · Unknown ไม่ถูกแทนเป็นศูนย์</p></div></div>'+
-      '<div class="tablewrap"><table><thead><tr><th>Card</th><th>Source</th><th>Kind</th><th>Value</th><th>Status</th><th>Decision Use</th><th>Data As-of</th></tr></thead><tbody>'+
-      state.cards.map(function(c){return '<tr><td><b>'+esc(c.title)+'</b><div class="small muted">'+esc(c.card_id)+'</div></td><td>'+esc(c.source_code)+'</td><td>'+esc(c.kind)+'</td><td>'+esc(fmtValue(c))+'</td><td>'+badge(c.value_status)+'</td><td>'+(c.decision_use?badge(c.decision_use):'—')+'</td><td>'+esc(c.data_as_of||'—')+'</td></tr>';}).join('')+
+      '<div class="tablewrap"><table><thead><tr><th>Card</th><th>Source</th><th>Kind</th><th>Value</th><th>Status</th><th>Freshness now</th><th>Trend</th><th>Decision Use</th><th>Data As-of</th></tr></thead><tbody>'+
+      state.cards.map(function(c){var t=trendMeta(c);return '<tr><td><b>'+esc(c.title)+'</b><div class="small muted">'+esc(c.card_id)+'</div></td><td>'+esc(c.source_code)+'</td><td>'+esc(c.kind)+'</td><td>'+esc(fmtValue(c))+'</td><td>'+badge(c.value_status)+'</td><td>'+badge(effectiveFreshness(c))+'</td><td><span class="'+esc(t.className)+'">'+esc(t.label)+'</span><div class="small muted">'+esc(t.detail)+'</div></td><td>'+(c.decision_use?badge(c.decision_use):'—')+'</td><td>'+esc(c.data_as_of||'—')+'</td></tr>';}).join('')+
       '</tbody></table></div></section>';
   }
   function render(){
@@ -1362,7 +1533,7 @@ body.ceo-dashboard .ai-nexus-foot-v2{display:flex;justify-content:space-between;
   });
 
   (async function boot(){
-    if(recoverySessionFromHash()){showLogin();return;}
+    if(await recoverySessionFromHash()){showLogin();return;}
     if(await restore()){
       showApp();
       try{await loadAll();}catch(e){toast('โหลดข้อมูลไม่สำเร็จ: '+e.message);}
