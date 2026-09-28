@@ -8,6 +8,9 @@ function newCard(id,n=1001){const rows=demoRows(n,id),sum=rows.reduce((s,r)=>s+(
 (async()=>{
  const legacy=fixtures(),items=['finSales','forecast','orderRegister','orders','issue'].map(id=>newCard(id,id==='orders'?80:1001));
  const cards=items.map(x=>x.card),byId=new Map(items.map(x=>[x.card.revenue_snapshot_id,x.rows]));
+ const orderItem=items.find(x=>x.card.card_id==='orders');
+ ['2026-07-01',null,'2026-09-30','2026-09-28'].forEach((date,i)=>{orderItem.rows[i].dueDate=date;orderItem.rows[i].deliveryStatus=i===0?'OVERDUE':date?'OPEN':'UNKNOWN_DUE';});
+ Object.assign(orderItem.card.summary.scope,{overdueRows:77,openRows:2,unknownDueRows:1,urgentOrders:orderItem.rows.filter(r=>r.deliveryStatus==='OVERDUE').slice(0,3)});
  const control={reads:0,failRows:false,failCards:false,delay:false,release:null,writes:0};
  const server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(fs.readFileSync(path.join(__dirname,'../index.html')));});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -56,16 +59,43 @@ function newCard(id,n=1001){const rows=demoRows(n,id),sum=rows.reduce((s,r)=>s+(
   // Current open orders must never appear as a historical month-end balance.
   await page.locator('#ceoMonth').selectOption('2026-08');assert.equal(await page.locator('.ctrl-kpi[data-ceo-detail=orders] strong').textContent(),'—');await page.locator('#ceoMonth').selectOption('2026-09');
   await page.locator('.revenue-urgent button').first().click();await page.locator('#revenueFilter').waitFor();assert.equal(await page.locator('#revenueFilter [name=status]').inputValue(),'OVERDUE');assert.equal(await page.locator('#revenueFilter [name=query]').inputValue(),'DEMO-PO-0');await page.keyboard.press('Escape');
+  // Priority opens the complete evidence queue, sorted by due date. All counts stay at the snapshot date.
+  await page.locator('.ctrl-priorities [data-ceo-priority="orders-overdue"]').click();await page.locator('#revenueFilter').waitFor();
+  assert.equal(await page.locator('#revenueFilter [name=status]').inputValue(),'OVERDUE');assert.equal(await page.locator('#revenueFilter [name=query]').inputValue(),'');
+  assert.match(await page.locator('.revenue-results').textContent(),/77 \/ 80/);assert.match(await page.locator('.revenue-table tbody tr').first().textContent(),/DEMO-PO-0/);
+  assert.match(await page.locator('[data-order-aging="LATER"]').getAttribute('class'),/ctrl-state-warn/,'future orders must not receive overdue risk color');
+  assert.match(await page.locator('.revenue-table tbody tr').first().textContent(),/เกินกำหนด 89 วัน/);
+  await page.locator('#revenueFilter [name=timing]').selectOption('DUE_SOON');assert.match(await page.locator('.revenue-results').textContent(),/2 \/ 80/);assert.equal(await page.locator('#revenueFilter [name=status]').inputValue(),'');
+  await page.locator('[data-order-aging="LATE_31_PLUS"]').click();assert.match(await page.locator('.revenue-results').textContent(),/1 \/ 80/);
+  assert.match(await page.locator('[data-order-aging="LATE_31_PLUS"]').textContent(),/— บาท/,'an unvalued overdue row is not zero');
+  await page.locator('[data-ceo-action="orders"]').click();
+  const draft=await page.locator('#actionForm [name=description]').inputValue();
+  assert.match(draft,/Snapshot demo-orders/);assert.match(draft,/เกิน 30 วัน/);assert.match(draft,/พบ 1 รายการ/);assert.match(draft,/DEMO-PO-0/);assert.equal(control.writes,0);
+  await page.locator('#actionDialog').getByRole('button',{name:'ยกเลิก',exact:true}).click();
+  await page.locator('.ctrl-priorities [data-ceo-priority="orders-no-due"]').click();await page.locator('#revenueFilter').waitFor();
+  assert.match(await page.locator('.revenue-results').textContent(),/1 \/ 80/);assert.match(await page.locator('.revenue-table tbody').textContent(),/DEMO-PO-1/);
+  await page.locator('#revenueFilter [name=timing]').selectOption('DUE_SOON');assert.match(await page.locator('.revenue-results').textContent(),/2 \/ 80/,'select filters immediately');
+  await page.locator('[data-revenue-reset]').click();assert.match(await page.locator('.revenue-results').textContent(),/80 \/ 80/);
+  assert.equal(await page.locator('#revenueFilter [name=timing]').inputValue(),'');await page.keyboard.press('Escape');
+  await page.locator('.ctrl-domains [data-ceo-detail="ai"]').click();assert.match(await page.locator('#ceoDetailBody').textContent(),/คิวติดตามตามหลักฐาน/);assert.equal(await page.locator('#ceoDetailBody [data-ceo-priority="orders-overdue"]').count(),1);await page.keyboard.press('Escape');
+  await page.locator('.ctrl-domains [data-ceo-detail="confidence"]').click();
+  assert.ok(await page.locator('.ceo-freshness tbody tr').count()>5);assert.match(await page.locator('.ceo-freshness').textContent(),/เวลาไทย/);await page.keyboard.press('Escape');
   // Evidence errors stay visible, retry succeeds, and only one read is cached.
   control.failRows=true;await page.locator('[data-ceo-detail=orderRegister]').first().click();await page.locator('.ceo-detail-tabs [data-detail-tab=parts]').click();await page.locator('#revenueRetry').waitFor();control.failRows=false;await page.locator('#revenueRetry').click();await page.locator('#revenueFilter').waitFor();await page.keyboard.press('Escape');
   control.failCards=true;await page.locator('#ceoRefresh').click();await page.getByText(/โหลดข้อมูลรายได้ใหม่ไม่สำเร็จ/).waitFor();control.failCards=false;await page.locator('#ceoRefresh').click();await page.locator('.revenue-urgent button').first().waitFor();
   // Responsive detail stays inside the drawer; horizontal scrolling is table-local.
   await page.setViewportSize({width:390,height:844});await page.locator('.ctrl-kpi[data-ceo-detail=finSales]').click();await page.locator('.ceo-detail-tabs [data-detail-tab=parts]').click();await page.locator('#revenueFilter').waitFor();
   assert.equal(Math.round((await page.locator('#ceoDetail').boundingBox()).width),390);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth),390);await page.screenshot({path:output+'/revenue-mobile-demo.png'});await page.keyboard.press('Escape');
+  await page.locator('.ctrl-kpi[data-ceo-detail=orders]').click();await page.locator('.ceo-detail-tabs [data-detail-tab=parts]').click();await page.locator('.order-aging').waitFor();
+  assert.equal(await page.locator('.order-aging button').count(),6);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth),390);
+  assert.ok(await page.locator('.order-aging button').evaluateAll(els=>els.every(e=>e.scrollWidth<=e.clientWidth+1)));
+  await page.screenshot({path:output+'/order-aging-mobile-demo.png'});await page.keyboard.press('Escape');
+  await page.setViewportSize({width:1366,height:768});await page.locator('.ctrl-priorities [data-ceo-priority="orders-overdue"]').click();await page.locator('.order-aging').waitFor();
+  await page.screenshot({path:output+'/order-aging-desktop-demo.png'});await page.keyboard.press('Escape');
   // A pending response after logout cannot repaint sensitive detail or reuse its cache.
   await page.setViewportSize({width:1366,height:768});control.delay=true;await page.locator('.ctrl-kpi[data-ceo-detail=forecast]').click();await page.locator('.ceo-detail-tabs [data-detail-tab=parts]').click();await page.getByText('กำลังอ่านรายการจากชุดข้อมูล…').waitFor();
   await page.keyboard.press('Escape');await page.locator('#logout').click();await page.locator('#loginScreen').waitFor();control.release();await page.waitForTimeout(200);
   assert.equal(await page.locator('#ceoDetailBody').textContent(),'');assert.equal(await page.locator('#view').textContent(),'');assert.equal(control.writes,0);assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({status:'PASS',synthetic:true,rowsBeyond1000:true,scopedOverlay:true,filters:true,pagination:true,evidenceLinks:true,escape:true,errorRetry:true,staleTimestampPreserved:true,logoutRace:true,viewports:6,productionWrites:0,consoleErrors:errors.length},null,2));
+  console.log(JSON.stringify({status:'PASS',synthetic:true,rowsBeyond1000:true,scopedOverlay:true,filters:true,pagination:true,evidenceLinks:true,escape:true,errorRetry:true,staleTimestampPreserved:true,logoutRace:true,priorityQueue:true,agingBuckets:true,instantSelects:true,scopedActionDraft:true,freshnessTable:true,viewports:6,productionWrites:0,consoleErrors:errors.length},null,2));
  }finally{await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});
