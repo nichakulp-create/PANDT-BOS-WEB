@@ -290,6 +290,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
 @media(max-height:650px){.revenue-urgent button:nth-child(n+2){display:none}}
 .revenue-filters input,.revenue-filters select{background:#0d0d0d;color:#f5f7fa;border:1px solid #50555b;color-scheme:dark}.revenue-filters input::placeholder{color:#9aabba}.revenue-urgent button{background:transparent;color:#d9e7ef;border:0;border-bottom:1px solid #292929;line-height:1.2}.revenue-urgent button:hover{background:#201014}.revenue-urgent button:focus-visible{outline:2px solid #ffe600}.ctrl-orders-summary .ctrl-ring{height:100%;max-height:106px;width:auto;aspect-ratio:1;min-width:0}.revenue-table .ctrl-status-chip{font-size:10px}@media(min-width:1000px) and (max-height:820px){.revenue-urgent button:nth-child(n+3){display:none}.ctrl-orders-summary .ctrl-ring{max-height:72px}}@media(min-width:701px) and (max-width:999px) and (min-height:561px){.revenue-urgent button:nth-child(n+3){display:none}.ctrl-orders-summary .ctrl-ring{max-height:72px}}
 @media(max-height:820px),(max-width:999px){.ctrl-orders-summary .ctrl-ring small{font-size:7px;line-height:1.2}.ctrl-orders-summary .ctrl-ring strong{font-size:24px;line-height:1.1}}
+.order-aging{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 18px}.order-aging button{display:flex;flex-direction:column;gap:5px;text-align:left;min-width:0;padding:13px;background:#0b0b0b;color:#c8d8e6;border:1px solid #343434;border-top:3px solid var(--status-color);border-radius:5px;font-size:12px}.order-aging strong{color:var(--status-color);font-size:25px;line-height:1.3}.order-aging small{font-size:11px}.order-aging button[aria-pressed=true]{outline:2px solid #ffe600;background:#1a1800}.order-aging button:focus-visible{outline:2px solid #00e5ff}.ceo-freshness{min-width:740px}.ctrl-insight .btn{margin-top:10px}.ctrl-insight{border-left-color:var(--status-color,#eaa947)}@media(max-width:600px){.order-aging{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.order-aging button{padding:10px}.order-aging strong{font-size:21px}}
 </style>
 </head>
 <body>
@@ -783,6 +784,9 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   function ceoPanel(n,title,english,id,body,cls){return '<section id="ceo-panel-'+(n-1)+'" class="ctrl-panel '+cls+' ctrl-state-'+(id==='orderStatus'&&!ceoCard('orders')?.revenue_snapshot_id?'missing':ceoGroupTone(ceoGroup(id)))+'"><header><h2>'+n+'. '+title+' <small>'+english+'</small></h2>'+ceoButton(id,title,'ดูรายละเอียด ↗','')+'</header>'+body+'</section>';}
   function ceoPriorities(){
     var rows=ceoRows(),list=[];if(!rows.length)return list;
+    var order=ceoCard('orders'),scope=order&&order.revenue_snapshot_id&&order.summary&&order.summary.scope;
+    if(scope&&Number(scope.overdueRows)>0)list.push({key:'orders-overdue',id:'orders',title:'ติดตามออเดอร์เกินกำหนด '+Number(scope.overdueRows).toLocaleString('th-TH')+' รายการ',context:'ค้าง ณ '+order.data_as_of+' · เปิดคิวเรียงวันกำหนดส่ง',level:'risk',tag:'งานค้าง',status:'OVERDUE',next:'ตรวจยอดค้างล่าสุดกับ SO และการจ่าย FG แล้วให้ฝ่ายขาย/PC ยืนยันวันส่งใหม่กับรายการที่ยังค้าง'});
+    if(scope&&Number(scope.unknownDueRows)>0)list.push({key:'orders-no-due',id:'orders',title:'เติมกำหนดส่ง '+Number(scope.unknownDueRows).toLocaleString('th-TH')+' รายการ',context:'ยังจัดลำดับวันส่งไม่ได้ · ค้าง ณ '+order.data_as_of,level:'warn',tag:'ข้อมูล',timing:'UNKNOWN_DUE',next:'ตรวจ PO และ Delivery Plan ต้นทางเพื่อยืนยันกำหนดส่ง แล้วนำเข้าชุดข้อมูลใหม่'});
     var sourceAge=Math.max.apply(null,rows.map(function(c){var age=ageDays(c.source_read_at);return age===null?Infinity:age;}));
     if(!Number.isFinite(sourceAge)||sourceAge>3)list.push({id:'confidence',title:'อัปเดตข้อมูลต้นทาง',context:!Number.isFinite(sourceAge)?'บางชุดยังไม่ทราบเวลาที่อ่านข้อมูล':'อ่านต้นทาง '+sourceAge+' วันก่อน · ยังใช้แทนสถานะวันนี้ไม่ได้',level:'risk',tag:'เร่งตรวจ'});
     if(!ceoSalesApproved(ceoCard('finSales')))list.push({id:'finSales',title:'เชื่อมยอดขายจริงจาก Folow',context:'ฐานยอดขายเดิมยังไม่ตรงสัญญาข้อมูล',level:'risk',tag:'ยอดขาย'});
@@ -790,6 +794,17 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     var candidates=rows.filter(function(c){return /PARTIAL|NO_|UNKNOWN|BLOCK/.test(c.value_status||'')||Number(c.valuation_unknown_rows)>0||Number(c.operational_unknown_rows)>0;}).sort(function(a,b){return evidencePriorityScore(b)-evidencePriorityScore(a);});
     candidates.forEach(function(c){if(list.length<5&&!list.some(function(x){return x.id===c.card_id;}))list.push({id:c.card_id,title:'ตรวจ '+c.title,context:ceoStatus(c)+' · '+(Number(c.valuation_unknown_rows)>0?'มูลค่าไม่ทราบ '+Number(c.valuation_unknown_rows).toLocaleString('th-TH')+' แถว':'ทบทวนหลักฐานต้นทาง'),level:ceoTone(c)==='risk'?'risk':'warn',tag:c.source_code||'ตรวจสอบ'});});
     return list;
+  }
+  function ceoPriorityButton(p,body,cls){
+    return '<button type="button" class="ceo-hit '+cls+' ctrl-state-'+p.level+'" data-ceo-priority="'+esc(p.key||p.id)+'" data-ceo-detail="'+esc(p.id)+'" aria-haspopup="dialog" aria-label="ดูรายละเอียด '+esc(p.title)+'">'+body+'</button>';
+  }
+  function ceoPriorityDetails(){
+    var queue=ceoPriorities();
+    return '<h3>คิวติดตามตามหลักฐานที่มี</h3><p>แยกงานค้างกับการตรวจข้อมูล · จำนวนคือรายการ ไม่ใช่จำนวน PO ที่ไม่ซ้ำ</p>'+(queue.length?queue.map(function(p,i){return '<article class="ctrl-insight ctrl-state-'+p.level+'"><strong>'+ceoStatusChip(p.level,p.tag||'ข้อมูล')+' '+(i+1)+'. '+esc(p.title)+'</strong><p>'+esc(p.context)+'</p><p>'+esc(p.next||ceoNextStep(p.id))+'</p>'+ceoPriorityButton(p,'เปิดรายการที่เกี่ยวข้อง ↗','btn')+'</article>';}).join(''):'<p>ยังไม่มีหลักฐานให้จัดลำดับ</p>')+'<div class="ctrl-note">สถานะออเดอร์เป็นสถานะ ณ วันข้อมูล ไม่ใช่สถานะสดหรือยอดสูญเสีย ปุ่มรีเฟรชอ่านข้อมูลที่นำเข้าแล้ว</div>';
+  }
+  function ceoFreshnessTable(){
+    var rows=ceoRows().slice().sort(function(a,b){return String(a.source_read_at||'').localeCompare(String(b.source_read_at||''));});
+    return '<h3>เวลาอ่านข้อมูลแต่ละส่วน</h3><p>เรียงชุดที่อ่านนานที่สุดก่อน · รีเฟรชหน้าเว็บไม่ทำให้วันอ่านต้นทางเปลี่ยน</p><div class="tablewrap"><table class="ceo-freshness"><thead><tr><th>ส่วนงาน / ต้นทาง</th><th>ข้อมูล ณ</th><th>อ่านต้นทาง (เวลาไทย)</th><th>อายุชุดข้อมูล</th><th>สถานะข้อมูล</th></tr></thead><tbody>'+rows.map(function(c){var age=ageDays(c.source_read_at);return '<tr><td>'+ceoButton(c.card_id,ceoTitle(c.card_id),esc(ceoTitle(c.card_id))+' ↗','btn')+'<br>'+esc(c.source_code||'—')+'</td><td>'+esc(c.data_as_of||'—')+'</td><td>'+esc(c.source_read_at?new Date(c.source_read_at).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'}):'ไม่ทราบ')+'</td><td>'+esc(age===null?'ไม่ทราบ':age===0?'ไม่ถึง 1 วัน':age+' วัน')+'</td><td>'+ceoStatusChip(ceoTone(c),ceoStatus(c))+'</td></tr>';}).join('')+'</tbody></table></div>';
   }
   function ceoChart(id,large){
     var history=ceoHistory(id),max=Math.max.apply(null,history.map(function(p){return Math.max(0,ceoNumber(p.card)||0);}).concat([1]));
@@ -809,7 +824,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     var max=Math.max.apply(null,funnel.map(function(s){return Math.max(0,ceoNumber(ceoMetric(s[0]))||0);}).concat([1]));
     var funnelHtml='<div class="ctrl-funnel">'+funnel.map(function(s){var c=ceoMetric(s[0]),n=ceoNumber(c);return ceoButton(s[0],s[1],'<strong>'+esc(ceoCompact(c))+'</strong><span class="ctrl-column '+(n===null?'is-unknown':'')+'"><span style="--bar:'+s[3]+';height:'+(n===null?0:Math.max(0,n)/max*100)+'%"></span></span><b>'+s[1]+'</b><small>'+s[2]+'</small>','ctrl-stage');}).join('')+'</div><p class="ctrl-caption">ยอดแต่ละขั้นใช้ต่างฐาน · Conversion — · หน่วย: บาท</p>';
     var flowHtml='<div class="ctrl-flow">'+processSpecs.map(function(s){return ceoButton(s[0],s[1],'<span>'+s[1]+'</span>'+ceoIcon(s[3])+'<strong>'+esc(ceoCompact(ceoCard(s[0])))+'</strong><small>'+s[2]+'</small>','ctrl-flow-item',ceoTone(ceoCard(s[0])));}).join('')+'</div><div class="ctrl-total"><span>ทุนรวม / สัดส่วน</span>'+ceoButton('workingCapital','ฐานเงินทุน','— / — &nbsp; ดูฐานมูลค่า ↗','')+'</div><p class="ctrl-caption">ยังรวมยอดต่างฐานไม่ได้ · QA/FG ต้องตรวจรายการซ้ำ</p>';
-    var queue=ceoPriorities();var aiHtml='<div class="ctrl-priorities">'+(queue.length?queue.map(function(p,i){return ceoButton(p.id,p.title,'<span class="ctrl-rank">'+(i+1)+'</span><span><b>'+esc(p.title)+'</b><small>'+esc(p.context)+'</small></span><em>'+ceoStatusChip(p.level,p.level==='risk'?'เร่งตรวจ':'ติดตาม')+' ›</em>','ctrl-list-item '+p.level,p.level);}).join(''):'<p class="ctrl-caption">ยังไม่มีหลักฐานให้จัดลำดับ</p>')+'</div><p class="ctrl-caption">สรุปจากกฎข้อมูล · ผลกระทบเป็นเงินยังไม่ทราบ</p>';
+    var queue=ceoPriorities();var aiHtml='<div class="ctrl-priorities">'+(queue.length?queue.map(function(p,i){return ceoPriorityButton(p,'<span class="ctrl-rank">'+(i+1)+'</span><span><b>'+esc(p.title)+'</b><small>'+esc(p.context)+'</small></span><em>'+ceoStatusChip(p.level,p.tag||'ข้อมูล')+' ›</em>','ctrl-list-item '+p.level);}).join(''):'<p class="ctrl-caption">ยังไม่มีหลักฐานให้จัดลำดับ</p>')+'</div><p class="ctrl-caption">กฎติดตามงาน / ตรวจข้อมูล · สถานะ ณ วันข้อมูล</p>';
     var costHtml=ceoChart('expenses',false)+'<h3 class="ctrl-subhead">ตรวจฐานต้นทุน · ยังไม่ยืนยันความผิดปกติ</h3>'+[['expenses','ค่าใช้จ่ายรายเดือน'],['finCost','ต้นทุนตาม FIN'],['purchase','ยอดจัดซื้อค้างรับ']].map(function(s){return ceoButton(s[0],s[1],'<span>'+s[1]+'</span><b>'+esc(ceoCompact(ceoCard(s[0])))+'</b><small>'+ceoStatusChip(ceoTone(ceoCard(s[0])),ceoStatus(ceoCard(s[0])))+' ↗</small>','ctrl-cost-row',ceoTone(ceoCard(s[0])));}).join('')+'<p class="ctrl-caption">กราฟค่าใช้จ่ายตาม Snapshot · ไม่ใช้แทนต้นทุนขาย</p>';
     var orderHtml='<div class="ctrl-orders-summary"><div class="ctrl-ring" role="img" aria-label="จำนวนและสัดส่วนสถานะคำสั่งซื้อยังไม่ทราบ"><small>จำนวนคำสั่งซื้อ</small><strong>—</strong><small>ยังไม่มีรายละเอียด</small></div><div class="ctrl-order-legend">'+[['#00ffa3','ตรงเวลา'],['#ffe600','เสี่ยงล่าช้า'],['#ff405c','เกินกำหนด'],['#a1abb8','ยกเลิก']].map(function(s){return '<div style="--dot:'+s[0]+'"><span><i></i>'+s[1]+'</span><b>—</b></div>';}).join('')+'</div></div><h3 class="ctrl-subhead">คำสั่งซื้อเร่งด่วน</h3><div class="ctrl-empty-table"><div><span>ลูกค้า / ออเดอร์</span><span>กำหนดส่ง</span><span>สถานะ</span><span>มูลค่า</span></div><p>รอหลักฐานรายออเดอร์และวันส่งมอบ</p></div><p class="ctrl-caption">ออเดอร์ค้างส่ง '+esc(ceoCompact(ceoCard('orders'))) +' บาท · จำนวนรายการและสัดส่วนยังไม่ทราบ</p>';
     var openCard=ceoCard('orders');
@@ -879,28 +894,58 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
       (Object.keys(issues).length?'<div class="revenue-issues">'+Object.keys(issues).map(function(k){return '<span>'+esc(revenueIssue(k))+' <b>'+esc(issues[k])+'</b></span>';}).join('')+'</div><p class="small muted">หนึ่งรายการอาจมีหลายสาเหตุ</p>':'')+
       '<div class="buttons"><button class="btn primary" type="button" data-detail-tab="parts">ดูรายการและแถวต้นทาง ↗</button></div>';
   }
+  // Calendar dates are compared against the snapshot date, never the viewer's clock.
+  function orderDay(value){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||'')))return null;
+    var ms=Date.parse(value+'T00:00:00Z');
+    return Number.isFinite(ms)&&new Date(ms).toISOString().slice(0,10)===value?ms/86400000:null;
+  }
+  function orderTiming(row,c){
+    var due=orderDay(row.dueDate),asOf=orderDay(c.data_as_of);
+    if(due===null||asOf===null)return {bucket:'UNKNOWN_DUE',days:null,label:asOf===null?'ไม่ทราบวันข้อมูล':'ไม่ทราบกำหนดส่ง'};
+    var days=asOf-due;
+    return {bucket:days>30?'LATE_31_PLUS':days>7?'LATE_8_30':days>0?'LATE_1_7':days>=-7?'DUE_SOON':'LATER',days:days,label:days>0?'เกินกำหนด '+days+' วัน':days===0?'ครบกำหนด ณ วันข้อมูล':'อีก '+(-days)+' วัน ณ วันข้อมูล'};
+  }
+  function revenueFilteredRows(c,rows,f){
+    var q=String(f.query||'').trim().toLocaleLowerCase();
+    var filtered=rows.filter(function(r){var timing=c.card_id==='orders'?orderTiming(r,c):null;return (!f.customer||r.customer===f.customer)&&(!f.status||(f.status==='OVERDUE'?timing&&timing.days>0:r.status===f.status))&&(!f.timing||timing&&(f.timing==='OVERDUE'?timing.days>0:timing.bucket===f.timing))&&(!q||[r.customer,r.part,r.partName,r.document,r.job,r.transactionId].join(' ').toLocaleLowerCase().includes(q));});
+    if(c.card_id==='orders'&&f.sort!=='source')filtered.sort(function(a,b){var ad=orderDay(a.dueDate),bd=orderDay(b.dueDate);return (ad===null?Infinity:ad)-(bd===null?Infinity:bd);});
+    return filtered;
+  }
+  function orderAging(c,rows){
+    var groups={LATE_1_7:{rows:0,knownRows:0,minor:0},LATE_8_30:{rows:0,knownRows:0,minor:0},LATE_31_PLUS:{rows:0,knownRows:0,minor:0},DUE_SOON:{rows:0,knownRows:0,minor:0},LATER:{rows:0,knownRows:0,minor:0},UNKNOWN_DUE:{rows:0,knownRows:0,minor:0}};
+    rows.forEach(function(r){var group=groups[orderTiming(r,c).bucket];group.rows++;if(r.status==='INCLUDED'&&r.valueMinor!=null&&Number.isFinite(Number(r.valueMinor))){group.minor+=Number(r.valueMinor);group.knownRows++;}});
+    return groups;
+  }
+  var orderTimingLabels=[['','ทุกกำหนดส่ง'],['OVERDUE','เกินกำหนดทั้งหมด'],['LATE_1_7','เกิน 1–7 วัน'],['LATE_8_30','เกิน 8–30 วัน'],['LATE_31_PLUS','เกิน 30 วัน'],['DUE_SOON','ครบกำหนดใน 0–7 วัน'],['LATER','ครบกำหนดเกิน 7 วัน'],['UNKNOWN_DUE','ไม่ทราบกำหนด / วันข้อมูล']];
+  function orderAgingView(c,rows,f){
+    var groups=orderAging(c,rows);
+    return '<h3>อายุค้างส่ง ณ '+esc(c.data_as_of||'ไม่ทราบวันข้อมูล')+'</h3><p>นับรายการทั้งชุดก่อนกรอง · มูลค่าเฉพาะรายการผ่านกฎคำนวณ ไม่ใช่ยอดสูญเสีย</p><div class="order-aging">'+orderTimingLabels.slice(2).map(function(x){var g=groups[x[0]],tone=x[0].startsWith('LATE_')?'risk':x[0]==='UNKNOWN_DUE'?'missing':'warn';return '<button type="button" class="ctrl-state-'+tone+'" data-order-aging="'+x[0]+'" aria-pressed="'+String(f.timing===x[0])+'"><span>'+esc(x[1])+'</span><strong>'+g.rows.toLocaleString('th-TH')+' <small>รายการ</small></strong><span>'+revenueMoney(g.rows===0?0:g.knownRows?g.minor:null)+' บาท</span><small>มีมูลค่า '+g.knownRows+' / '+g.rows+' รายการ</small></button>';}).join('')+'</div>';
+  }
   function revenueDetails(c){
     var s=c.summary||{},entry=revenueCache.get(c.revenue_snapshot_id);
     if(!entry){loadRevenueRows(c,false);return '<p role="status">กำลังอ่านรายการจากชุดข้อมูล…</p>';}
     if(entry.loading)return '<p role="status">กำลังอ่านรายการจากชุดข้อมูล…</p>';
     if(entry.error)return '<div class="ctrl-note" role="status">โหลดรายการไม่สำเร็จ <button class="btn" id="revenueRetry" type="button">ลองอีกครั้ง</button></div>';
-    var f=detailState.filters||(detailState.filters={query:'',customer:'',status:'',page:0});
-    var q=f.query.trim().toLocaleLowerCase(),customers=Array.from(new Set(entry.rows.map(function(r){return r.customer;}).filter(Boolean))).sort();
-    var filtered=entry.rows.filter(function(r){return (!f.customer||r.customer===f.customer)&&(!f.status||(f.status==='OVERDUE'?r.deliveryStatus==='OVERDUE':r.status===f.status))&&(!q||[r.customer,r.part,r.partName,r.document,r.job,r.transactionId].join(' ').toLocaleLowerCase().includes(q));});
+    var f=detailState.filters||(detailState.filters={query:'',customer:'',status:'',timing:'',sort:'due',page:0});
+    var customers=Array.from(new Set(entry.rows.map(function(r){return r.customer;}).filter(Boolean))).sort();
+    var filtered=revenueFilteredRows(c,entry.rows,f);
     var included=filtered.filter(function(r){return r.status==='INCLUDED'&&r.valueMinor!=null;}),sum=included.length?included.reduce(function(n,r){return n+Number(r.valueMinor);},0):null;
     var pages=Math.max(1,Math.ceil(filtered.length/50));f.page=Math.min(f.page,pages-1);
-    var html='<p>'+esc(s.scope&&s.scope.scopeRule||c.basis)+' · หน่วยมูลค่า: บาท</p>'+
+    var html='<p>'+esc(s.scope&&s.scope.scopeRule||c.basis)+' · หน่วยมูลค่า: บาท</p>'+(c.card_id==='orders'?orderAgingView(c,entry.rows,f):'')+
       '<form id="revenueFilter" class="revenue-filters"><label>ค้นหาเอกสาร / Part<input name="query" value="'+esc(f.query)+'" placeholder="เลข PO, Part, Job หรือลูกค้า"></label><label>ลูกค้า<select name="customer"><option value="">ทุกลูกค้า</option>'+customers.map(function(x){return '<option value="'+esc(x)+'"'+(x===f.customer?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select></label><label>สถานะ<select name="status">'+[['','ทั้งหมด'],['INCLUDED','รวมในยอด'],['REVIEW','รอตรวจ']].concat(c.card_id==='orders'?[['OVERDUE','เกินกำหนดส่ง']]:[]).map(function(x){return '<option value="'+x[0]+'"'+(f.status===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></label><button class="btn primary" type="submit">กรองรายการ</button></form>'+
-      '<p role="status">พบ '+filtered.length.toLocaleString('th-TH')+' / '+entry.rows.length.toLocaleString('th-TH')+' รายการ · ยอดที่ผ่านกฎในตัวกรอง <strong>'+revenueMoney(sum)+' บาท</strong> · รอตรวจ '+filtered.filter(function(r){return r.status==='REVIEW';}).length+' รายการ</p>';
+      '<p class="revenue-results" role="status">พบ '+filtered.length.toLocaleString('th-TH')+' / '+entry.rows.length.toLocaleString('th-TH')+' รายการ · ยอดที่ผ่านกฎในตัวกรอง <strong>'+revenueMoney(sum)+' บาท</strong> · รอตรวจ '+filtered.filter(function(r){return r.status==='REVIEW';}).length+' รายการ</p>';
+    if(c.card_id==='orders')html=html.replace('<button class="btn primary" type="submit">กรองรายการ</button>', '<label>กำหนดส่ง<select name="timing">'+orderTimingLabels.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===(f.timing||'')?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></label><label>เรียงรายการ<select name="sort"><option value="due"'+(f.sort!=='source'?' selected':'')+'>กำหนดส่งเก่าสุดก่อน</option><option value="source"'+(f.sort==='source'?' selected':'')+'>ลำดับต้นทาง</option></select></label><button class="btn primary" type="submit">กรองรายการ</button><button class="btn" type="button" data-revenue-reset="1">ล้างตัวกรอง</button>');
     // The local filter is confined to this detail view; it does not change company-wide KPIs.
     html+='<div class="tablewrap revenue-table"><table><thead><tr><th>วันที่ / เอกสาร</th><th>ลูกค้า / Part</th><th>'+(c.card_id==='finSales'?'จำนวนตามเอกสาร':'จำนวน × ราคา')+'</th><th>มูลค่าที่รวม</th><th>สถานะ / เหตุผล</th><th>หลักฐาน</th></tr></thead><tbody>'+filtered.slice(f.page*50,(f.page+1)*50).map(function(r){
-      return '<tr><td>'+esc(r.date||'—')+'<br><b>'+esc(r.document||r.transactionId||'—')+'</b>'+(r.job?'<br><small>Job '+esc(r.job)+'</small>':'')+(r.dueDate?'<br><small>กำหนดส่ง '+esc(r.dueDate)+'</small>':'')+'</td><td>'+esc(r.customer||'—')+'<br><small>'+esc(r.part||'ไม่มี Part ในต้นทาง')+'</small></td><td>'+esc(r.qty==null?'—':Number(r.qty).toLocaleString('th-TH'))+(c.card_id==='finSales'?'':'<br><small>× '+esc(r.price==null?'—':Number(r.price).toLocaleString('th-TH',{maximumFractionDigits:4}))+'</small>')+'</td><td>'+revenueMoney(r.valueMinor)+(r.status==='REVIEW'&&r.rawValueMinor!=null?'<br><small>รอตรวจ '+revenueMoney(r.rawValueMinor)+'</small>':'')+'</td><td>'+ceoStatusChip(r.status==='REVIEW'?'warn':'good',r.status==='REVIEW'?'รอตรวจ':'ผ่านกฎคำนวณ')+(r.deliveryStatus==='OVERDUE'?'<br>'+ceoStatusChip('risk','เกินกำหนดส่ง'):'')+'<br><small>'+esc((r.issues||[]).concat((r.warnings||[]).filter(function(w){return w!=='ORDER_OVERDUE';})).map(revenueIssue).join(' · '))+'</small>'+(r.cancelRef?'<br><small>กลับรายการ '+esc(r.cancelRef)+'</small>':'')+'</td><td>'+revenueSource(r.source)+(r.priceSource?'<br><small>'+revenueSource(r.priceSource,'ฐานราคา')+'</small>':'')+'</td></tr>';
+      return '<tr><td>'+esc(r.date||'—')+'<br><b>'+esc(r.document||r.transactionId||'—')+'</b>'+(r.job?'<br><small>Job '+esc(r.job)+'</small>':'')+(r.dueDate?'<br><small>กำหนดส่ง '+esc(r.dueDate)+'</small>':'')+'</td><td>'+esc(r.customer||'—')+'<br><small>'+esc(r.part||'ไม่มี Part ในต้นทาง')+'</small></td><td>'+esc(r.qty==null?'—':Number(r.qty).toLocaleString('th-TH'))+(c.card_id==='finSales'?'':'<br><small>× '+esc(r.price==null?'—':Number(r.price).toLocaleString('th-TH',{maximumFractionDigits:4}))+'</small>')+'</td><td>'+revenueMoney(r.valueMinor)+(r.status==='REVIEW'&&r.rawValueMinor!=null?'<br><small>รอตรวจ '+revenueMoney(r.rawValueMinor)+'</small>':'')+'</td><td>'+ceoStatusChip(r.status==='REVIEW'?'warn':'good',r.status==='REVIEW'?'รอตรวจ':'ผ่านกฎคำนวณ')+(c.card_id==='orders'?'<br>'+ceoStatusChip(orderTiming(r,c).days>0?'risk':orderTiming(r,c).days===null?'missing':'warn',orderTiming(r,c).label):'')+'<br><small>'+esc((r.issues||[]).concat((r.warnings||[]).filter(function(w){return w!=='ORDER_OVERDUE';})).map(revenueIssue).join(' · '))+'</small>'+(r.cancelRef?'<br><small>กลับรายการ '+esc(r.cancelRef)+'</small>':'')+'</td><td>'+revenueSource(r.source)+(r.priceSource?'<br><small>'+revenueSource(r.priceSource,'ฐานราคา')+'</small>':'')+'</td></tr>';
     }).join('')+(filtered.length?'':'<tr><td colspan="6">ไม่พบรายการตามตัวกรอง</td></tr>')+'</tbody></table></div>'+
       '<div class="revenue-pager"><button type="button" class="btn" data-revenue-page="-1"'+(f.page===0?' disabled':'')+'>ก่อนหน้า</button><span>หน้า '+(f.page+1)+' / '+pages+' · หน้าละ 50 รายการ</span><button type="button" class="btn" data-revenue-page="1"'+(f.page===pages-1?' disabled':'')+'>ถัดไป</button></div>';
+    if(c.card_id==='orders')html+=ceoFollowupButtons('orders',c);
     html+='<h3>ตารางต้นทางและเวลาอ่าน</h3><ul>'+(s.sources||[]).map(function(x){return '<li>'+revenueSource(x,x.tab)+' · '+fmtDate(x.readAt)+'</li>';}).join('')+'</ul>';
     return html;
   }
-  function ceoNextStep(id){var map={finSales:'ตรวจยอด Folow แยกบริษัทและช่วงเดือน แล้วกระทบยอดกับ Invoice และการจ่าย FG',workingCapital:'ยืนยันราคาทุนและคงเหลือจริงรายขั้น แล้วกำหนดจุดตัด QA/FG เพื่อไม่ให้นับซ้ำ',totalCost:'แยกต้นทุนขาย ค่าใช้จ่าย และยอดจัดซื้อ พร้อมกระทบยอดก่อนรวม',grossMargin:'จับคู่ยอดขายและต้นทุนขายในงวดเดียวกันก่อนคำนวณอัตรากำไร',otd:'เชื่อมเลขออเดอร์ วันกำหนดส่ง วันส่งจริง และกำหนดเกณฑ์ส่งครบ/ส่งบางส่วน',orderStatus:'เชื่อมรายการออเดอร์พร้อมวันส่งมอบเพื่อจัดคิวงานเร่งด่วน',confidence:'อ่านต้นทางใหม่ ตรวจสถานะและแถวไม่ทราบค่า แล้วรับรอง Snapshot ตามเกณฑ์',ai:'ติดตามประเด็นตามลำดับ และให้ผู้รับผิดชอบยืนยันหลักฐานก่อนตัดสินใจ'};return map[id]||'ตรวจต้นทางของ '+ceoTitle(id)+' แก้แถวที่ยังไม่ทราบค่า แล้วอ่าน Snapshot และตรวจรับอีกครั้ง';}
+  function ceoNextStep(id){var map={finSales:'ตรวจยอด Folow แยกบริษัทและช่วงเดือน แล้วกระทบยอดกับ Invoice และการจ่าย FG',orders:'ตรวจคงเหลือใน SO เทียบการจ่าย FG แล้วให้ฝ่ายขาย/PC ยืนยันกำหนดส่งของรายการที่ยังค้าง',workingCapital:'ยืนยันราคาทุนและคงเหลือจริงรายขั้น แล้วกำหนดจุดตัด QA/FG เพื่อไม่ให้นับซ้ำ',totalCost:'แยกต้นทุนขาย ค่าใช้จ่าย และยอดจัดซื้อ พร้อมกระทบยอดก่อนรวม',grossMargin:'จับคู่ยอดขายและต้นทุนขายในงวดเดียวกันก่อนคำนวณอัตรากำไร',otd:'เชื่อมเลขออเดอร์ วันกำหนดส่ง วันส่งจริง และกำหนดเกณฑ์ส่งครบ/ส่งบางส่วน',orderStatus:'เชื่อมรายการออเดอร์พร้อมวันส่งมอบเพื่อจัดคิวงานเร่งด่วน',confidence:'อ่านต้นทางใหม่ ตรวจสถานะและแถวไม่ทราบค่า แล้วรับรอง Snapshot ตามเกณฑ์',ai:'ติดตามประเด็นตามลำดับ และให้ผู้รับผิดชอบยืนยันหลักฐานก่อนตัดสินใจ'};return map[id]||'ตรวจต้นทางของ '+ceoTitle(id)+' แก้แถวที่ยังไม่ทราบค่า แล้วอ่าน Snapshot และตรวจรับอีกครั้ง';}
   function openCeoDetail(id){
     var dialog=$('ceoDetail'),opener=dialog.open?detailState.opener:document.activeElement;
     detailState={id:id,tab:'summary',opener:opener};drawCeoDetail();
@@ -912,6 +957,8 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     $('ceoDetailTitle').textContent=ceoTitle(id)+' · '+ceoMonthLabel(ceoScope.month);
     document.querySelectorAll('.ceo-detail-tabs [data-detail-tab]').forEach(function(b){var selected=b.dataset.detailTab===detailState.tab;b.id='ceo-tab-'+b.dataset.detailTab;b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-controls','ceoDetailBody');b.tabIndex=selected?0:-1;});
     body.setAttribute('role','tabpanel');body.setAttribute('aria-labelledby','ceo-tab-'+detailState.tab);body.tabIndex=0;
+    if(id==='ai'&&detailState.tab!=='trend'){body.innerHTML=ceoPriorityDetails();return;}
+    if(id==='confidence'&&['summary','parts'].includes(detailState.tab)){body.innerHTML='<h3>'+ceoRows().filter(ceoReady).length+' / '+ceoRows().length+' ส่วนงานผ่านเกณฑ์ข้อมูล</h3><p>มีค่า + รับรอง + ต้นทางปัจจุบัน + ฐานตรง</p>'+ceoFreshnessTable()+ceoFollowupButtons(id,null);return;}
     var note='<div class="ctrl-note">'+esc(rawCard&&rawCard.revenue_snapshot_id?rawCard.basis:ceoReason(id))+'</div>';
     if(detailState.tab==='summary'){
       var ratio=id==='workingCapital'?'<div class="ctrl-detail-label">สัดส่วนต่อยอดขาย / เป้าหมาย</div><h2>— / —</h2><p>รอฐานที่เทียบกันได้และเป้าหมายที่ยืนยัน</p>':'<div class="ctrl-detail-label">สถานะของชุดข้อมูล</div><h3>'+ceoStatusChip(ceoTone(c),id==='finSales'&&!c?'รอข้อมูล Folow':ceoStatus(c))+'</h3><p>'+esc(ceoScope.company)+' · '+esc(ceoMonthLabel(ceoScope.month))+'</p>';
@@ -935,6 +982,20 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
       (!related.length&&id!=='ai'&&!rawCard?.revenue_snapshot_id?'<p>ยังไม่มี Issue ที่ผูกกับ Card ในเดือนนี้ การไม่มี Issue ไม่ได้ยืนยันว่าข้อมูลครบ</p>':'')+
       '<div class="ctrl-insight"><strong>ขั้นตอนที่เสนอ</strong><p>'+esc(ceoNextStep(id))+'</p></div>'+ceoFollowupButtons(id,rawCard);
     }
+  }
+  function ceoActionContext(id,c){
+    var text=ceoNextStep(id)+'\nอ้างอิง '+ceoScope.company+' / '+ceoScope.month+'\n'+(c&&c.revenue_snapshot_id?c.basis:ceoReason(id));
+    if(c&&c.revenue_snapshot_id){
+      text+='\nข้อมูล ณ '+c.data_as_of+' · อ่านต้นทาง '+c.source_read_at+'\nSnapshot '+c.revenue_snapshot_id;
+      var entry=revenueCache.get(c.revenue_snapshot_id);
+      if(id==='orders'&&detailState.tab==='parts'&&entry&&!entry.loading&&!entry.error){
+        var f=detailState.filters||{},rows=revenueFilteredRows(c,entry.rows,f),timing=orderTimingLabels.find(function(x){return x[0]===(f.timing||'');});
+        text+='\nขอบเขตคิว: '+(timing?timing[1]:'ทุกกำหนดส่ง')+' · '+(f.status==='OVERDUE'?'เกินกำหนด':f.status==='REVIEW'?'รอตรวจ':f.status==='INCLUDED'?'รวมในยอด':'ทุกสถานะ')+' · ลูกค้า '+(f.customer||'ทั้งหมด')+' · ค้นหา '+(f.query||'ทั้งหมด')+'\nพบ '+rows.length+' รายการ';
+        text+=rows.slice(0,5).map(function(r){return '\n- '+(r.document||r.part||'ไม่มีเลขเอกสาร')+' · '+(r.customer||'ไม่มีลูกค้า')+' · '+(r.part||'ไม่มี Part')+' · กำหนด '+(r.dueDate||'ไม่ทราบ');}).join('');
+        if(rows.length>5)text+='\nและอีก '+(rows.length-5)+' รายการในตัวกรองเดียวกัน';
+      }
+    }
+    return text;
   }
   function ceoFollowupButtons(id,c){
     var canWrite=state.access&&['OWNER','EXECUTIVE'].includes(state.access.role);return '<div class="buttons">'+(canWrite?'<button class="btn primary" type="button" data-ceo-action="'+esc(id)+'">สร้าง Action ติดตาม</button><button class="btn" type="button" data-ceo-decision="'+esc(id)+'">บันทึก Decision Draft</button>':'')+'<button class="btn" type="button" data-ceo-followups="1">ดูงานและสถานะ</button></div>';
@@ -1104,16 +1165,19 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     var b=e.target.closest('button');if(!b)return;
     if(b.id==='ceoFullscreen'){toggleCeoFullscreen();return;}
     if(b.dataset.ceoPanel!==undefined){ceoPanelIndex=Number(b.dataset.ceoPanel);syncCeoPanels();return;}
+    if(b.dataset.ceoPriority){var priority=ceoPriorities().find(function(p){return (p.key||p.id)===b.dataset.ceoPriority;});if(!priority)return;openCeoDetail(priority.id);if(priority.status||priority.timing){detailState.tab='parts';detailState.filters={query:'',customer:'',status:priority.status||'',timing:priority.timing||'',sort:'due',page:0};drawCeoDetail();}return;}
     if(b.dataset.revenueQuery!==undefined){openCeoDetail('orders');detailState.tab='parts';detailState.filters={query:b.dataset.revenueQuery,customer:'',status:'OVERDUE',page:0};drawCeoDetail();return;}
     if(b.dataset.ceoDetail){openCeoDetail(b.dataset.ceoDetail);return;}
     if(b.dataset.detailTab){detailState.tab=b.dataset.detailTab;drawCeoDetail();$('ceoDetailBody').scrollTop=0;return;}
     if(b.id==='revenueRetry'){loadRevenueRows(ceoCard(detailState.id),true);drawCeoDetail();return;}
     if(b.dataset.revenuePage){detailState.filters.page+=Number(b.dataset.revenuePage);drawCeoDetail();$('ceoDetailBody').scrollTop=0;return;}
+    if(b.dataset.orderAging){detailState.filters=Object.assign({},detailState.filters,{status:'',timing:b.dataset.orderAging,page:0});drawCeoDetail();document.querySelector('[data-order-aging="'+b.dataset.orderAging+'"]').focus();return;}
+    if(b.dataset.revenueReset){detailState.filters={query:'',customer:'',status:'',timing:'',sort:'due',page:0};drawCeoDetail();document.querySelector('#revenueFilter [name=query]').focus();return;}
     if(b.id==='ceoRetryEvidence'){loadCeoEvidence(true);drawCeoDetail();return;}
     if(b.dataset.ceoAction){
-      var card=ceoCard(b.dataset.ceoAction);$('ceoDetail').close();
+      var card=ceoCard(b.dataset.ceoAction),actionContext=ceoActionContext(b.dataset.ceoAction,card);$('ceoDetail').close();
       openAction({card:card&&card.card_id||'',source:card&&card.source_code||'',title:'ตรวจสอบ '+ceoTitle(b.dataset.ceoAction)});
-      $('actionForm').elements.description.value=ceoNextStep(b.dataset.ceoAction)+'\nอ้างอิง '+ceoScope.company+' / '+ceoScope.month+'\n'+ceoReason(b.dataset.ceoAction);return;
+      $('actionForm').elements.description.value=actionContext;return;
     }
     if(b.dataset.ceoDecision){
       var decisionCard=ceoCard(b.dataset.ceoDecision);$('ceoDetail').close();openDecision({card:decisionCard&&decisionCard.card_id||''});
@@ -1130,7 +1194,9 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     if(b.dataset.actionCard){openAction({card:b.dataset.actionCard,source:b.dataset.actionSource,title:b.dataset.actionTitle});}
     if(b.dataset.approveDecision){if(confirm('ยืนยันอนุมัติ Decision นี้?'))approveDecision(b.dataset.approveDecision).catch(function(err){toast('อนุมัติไม่ได้: '+err.message);});}
   });
-  document.addEventListener('submit',function(e){if(e.target.id!=='revenueFilter')return;e.preventDefault();var f=new FormData(e.target);detailState.filters={query:String(f.get('query')||''),customer:String(f.get('customer')||''),status:String(f.get('status')||''),page:0};drawCeoDetail();document.querySelector('#revenueFilter [name=query]').focus();});
+  function applyRevenueFilter(form,focusName){var f=new FormData(form);detailState.filters={query:String(f.get('query')||''),customer:String(f.get('customer')||''),status:String(f.get('status')||''),timing:String(f.get('timing')||''),sort:String(f.get('sort')||'due'),page:0};if(detailState.filters.status==='OVERDUE'){if(focusName==='timing')detailState.filters.status='';if(focusName==='status')detailState.filters.timing='';}drawCeoDetail();var field=document.querySelector('#revenueFilter [name="'+focusName+'"]');if(field)field.focus();}
+  document.addEventListener('submit',function(e){if(e.target.id!=='revenueFilter')return;e.preventDefault();applyRevenueFilter(e.target,'query');});
+  document.addEventListener('change',function(e){if(e.target.matches('#revenueFilter select'))applyRevenueFilter(e.target.form,e.target.name);});
   $('ceoDetail').addEventListener('close',function(){
     document.querySelectorAll('.ceo-hit.is-selected').forEach(function(b){b.classList.remove('is-selected');});
     var opener=detailState.opener;if(opener&&opener.isConnected)opener.focus();
