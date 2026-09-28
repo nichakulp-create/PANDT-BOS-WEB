@@ -79,6 +79,8 @@ function newCard(id,n=1001){const rows=demoRows(n,id),sum=rows.reduce((s,r)=>s+(
   assert.equal(await page.locator('#revenueFilter [name=timing]').inputValue(),'');await page.keyboard.press('Escape');
   await page.locator('.ctrl-domains [data-ceo-detail="ai"]').click();assert.match(await page.locator('#ceoDetailBody').textContent(),/คิวติดตามตามหลักฐาน/);assert.equal(await page.locator('#ceoDetailBody [data-ceo-priority="orders-overdue"]').count(),1);await page.keyboard.press('Escape');
   await page.locator('.ctrl-domains [data-ceo-detail="confidence"]').click();
+  assert.equal(await page.locator('.ceo-source-health tbody tr').count(),4);
+  await page.locator('.ceo-detail-tabs [data-detail-tab=parts]').click();
   assert.ok(await page.locator('.ceo-freshness tbody tr').count()>5);assert.match(await page.locator('.ceo-freshness').textContent(),/เวลาไทย/);await page.keyboard.press('Escape');
   // Evidence errors stay visible, retry succeeds, and only one read is cached.
   control.failRows=true;await page.locator('[data-ceo-detail=orderRegister]').first().click();await page.locator('.ceo-detail-tabs [data-detail-tab=parts]').click();await page.locator('#revenueRetry').waitFor();control.failRows=false;await page.locator('#revenueRetry').click();await page.locator('#revenueFilter').waitFor();await page.keyboard.press('Escape');
