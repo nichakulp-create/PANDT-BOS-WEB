@@ -24,13 +24,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify static BOS
-        run: |
-          test -f index.html
-          grep -q "P&T BOS Management" index.html
-          grep -q "AI Manager" index.html
-          grep -q "function ceoDashboard" index.html
-          ! grep -qi "service.role" index.html
-          node -e "const fs=require('fs'),vm=require('vm'); new vm.Script(fs.readFileSync('index.html','utf8').match(/<script>([\\s\\S]*?)<\\/script>/)[1]);"
+        run: node scripts/verify-release.cjs
 
       - name: Stage application only
         run: |
