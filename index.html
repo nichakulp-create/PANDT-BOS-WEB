@@ -291,6 +291,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
 .revenue-filters input,.revenue-filters select{background:#0d0d0d;color:#f5f7fa;border:1px solid #50555b;color-scheme:dark}.revenue-filters input::placeholder{color:#9aabba}.revenue-urgent button{background:transparent;color:#d9e7ef;border:0;border-bottom:1px solid #292929;line-height:1.2}.revenue-urgent button:hover{background:#201014}.revenue-urgent button:focus-visible{outline:2px solid #ffe600}.ctrl-orders-summary .ctrl-ring{height:100%;max-height:106px;width:auto;aspect-ratio:1;min-width:0}.revenue-table .ctrl-status-chip{font-size:10px}@media(min-width:1000px) and (max-height:820px){.revenue-urgent button:nth-child(n+3){display:none}.ctrl-orders-summary .ctrl-ring{max-height:72px}}@media(min-width:701px) and (max-width:999px) and (min-height:561px){.revenue-urgent button:nth-child(n+3){display:none}.ctrl-orders-summary .ctrl-ring{max-height:72px}}
 @media(max-height:820px),(max-width:999px){.ctrl-orders-summary .ctrl-ring small{font-size:7px;line-height:1.2}.ctrl-orders-summary .ctrl-ring strong{font-size:24px;line-height:1.1}}
 .order-aging{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 18px}.order-aging button{display:flex;flex-direction:column;gap:5px;text-align:left;min-width:0;padding:13px;background:#0b0b0b;color:#c8d8e6;border:1px solid #343434;border-top:3px solid var(--status-color);border-radius:5px;font-size:12px}.order-aging strong{color:var(--status-color);font-size:25px;line-height:1.3}.order-aging small{font-size:11px}.order-aging button[aria-pressed=true]{outline:2px solid #ffe600;background:#1a1800}.order-aging button:focus-visible{outline:2px solid #00e5ff}.ceo-freshness{min-width:740px}.ctrl-insight .btn{margin-top:10px}.ctrl-insight{border-left-color:var(--status-color,#eaa947)}@media(max-width:600px){.order-aging{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.order-aging button{padding:10px}.order-aging strong{font-size:21px}}
+.snapshot-auto{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#dcf7ff}.snapshot-auto input{width:18px;height:18px;accent-color:#00e5ff}.ceo-source-health td{vertical-align:top;min-width:150px}.ceo-source-health small{color:#a3b5c7}.ceo-readiness-queue td{vertical-align:top;min-width:130px}
 </style>
 </head>
 <body>
@@ -395,7 +396,8 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   var SUPABASE_KEY='sb_publishable_cy41OPYufMjzbCvBiVrIzA_H8IRDB1A';
   var APPS_SCRIPT_WEB_APP_URL='<?= appUrl ?>';
   var STORAGE_KEY='pandt_bos_management_session_v1';
-  var state={session:null,user:null,access:null,kpis:null,cards:[],history:[],revenue:[],revenueError:false,expenses:[],expenseError:false,balances:[],balanceError:false,issues:[],actions:[],decisions:[],page:'dashboard',loading:false,loadError:false,requestEpoch:0};
+  var state={session:null,user:null,access:null,kpis:null,cards:[],history:[],revenue:[],revenueError:false,expenses:[],expenseError:false,balances:[],balanceError:false,issues:[],actions:[],decisions:[],page:'dashboard',loading:false,loadError:false,requestEpoch:0,reads:{}};
+  var snapshotRefresh={enabled:false,timer:null,nextAt:null};
   var pageInfo={
     dashboard:['ภาพรวมผู้บริหาร','มองสถานะธุรกิจ ประเด็น Action และ Decision ในหน้าจอเดียว'],
     issues:['ประเด็นข้อมูล','รายการข้อมูลที่ยังไม่พร้อมหรือควรตรวจสอบก่อนใช้ตัดสินใจ'],
@@ -423,9 +425,10 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   };
   var toastTimer;
   function toast(msg){$('toast').textContent=msg;clearTimeout(toastTimer);toastTimer=setTimeout(function(){$('toast').textContent='';},3500);}
-  function setBusy(on){state.loading=on;$('appScreen').classList.toggle('loading',on);}
+  function setBusy(on){state.loading=on;$('appScreen').classList.toggle('loading',on);document.querySelectorAll('[data-readiness-refresh],#ceoRefresh').forEach(function(b){b.disabled=on;});}
   function saveSession(s){state.session=s;sessionStorage.setItem(STORAGE_KEY,JSON.stringify(s));}
   function clearSession(){
+    snapshotRefresh.enabled=false;clearTimeout(snapshotRefresh.timer);snapshotRefresh.timer=null;snapshotRefresh.nextAt=null;state.reads={};
     state.requestEpoch++;state.session=null;state.user=null;state.access=null;
     state.kpis=null;state.cards=[];state.history=[];state.issues=[];state.actions=[];state.decisions=[];state.loadError=false;
     evidenceCache.clear();revenueCache.clear();expenseCache.clear();balanceCache.clear();state.revenue=[];state.revenueError=false;state.expenses=[];state.expenseError=false;state.balances=[];state.balanceError=false;ceoScope={month:'',company:''};sessionStorage.removeItem(STORAGE_KEY);
@@ -563,18 +566,26 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   async function loadAll(){
     if(state.loading)return;var epoch=state.requestEpoch;setBusy(true);
     try{
-      var results=await Promise.all([
+      var settled=await Promise.allSettled([
         api('bos_management_kpis?select=*'),
         api('bos_current_snapshot_cards?select=*&order=source_code.asc,title.asc'),
         api('bos_current_data_issues?select=*'),
         api('bos_action_items?select=*&order=created_at.desc'),
         api('bos_decisions?select=*&order=created_at.desc'),
         api('bos_snapshot_card_history?select=*&order=source_read_at.desc&limit=640'),
-        api('bos_revenue_cards?select=*&order=month.desc&limit=120').catch(function(){return null;}),
-        api('bos_expense_cards?select=*&order=month.desc&limit=240').catch(function(){return null;}),
-        api('bos_balance_cards?select=*&order=month.desc&limit=240').catch(function(){return null;})
+        api('bos_revenue_cards?select=*&order=month.desc&limit=120'),
+        api('bos_expense_cards?select=*&order=month.desc&limit=240'),
+        api('bos_balance_cards?select=*&order=month.desc&limit=240')
       ]);
       if(epoch!==state.requestEpoch)return;
+      var results=settled.map(function(r){return r.status==='fulfilled'&&Array.isArray(r.value)?r.value:null;}),checkedAt=new Date().toISOString();
+      var coreFailed=results.slice(0,6).some(function(r){return r===null;});
+      ['core','revenue','expenses','balances'].forEach(function(key,i){
+        var previous=state.reads[key]||{},ok=i===0?!coreFailed:results[i+5]!==null;
+        // A failed core read leaves the entire displayed generation untouched.
+        state.reads[key]={checkedAt:checkedAt,status:!ok?'error':coreFailed?'retained':'ok',successAt:ok&&!coreFailed?checkedAt:previous.successAt||null};
+      });
+      if(coreFailed)throw new Error('อ่านชุดข้อมูลหลักไม่ครบ กรุณาลองอีกครั้ง');
       state.loadError=false;evidenceCache.clear();revenueCache.clear();expenseCache.clear();balanceCache.clear();
       state.kpis=Array.isArray(results[0])&&results[0][0]?results[0][0]:{};
       state.cards=results[1]||[];
@@ -587,9 +598,22 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
       state.balances=results[8]===null?state.balances:results[8]||[];state.balanceError=results[8]===null;
       updateShell();render();
       if($('ceoDetail').open){drawCeoDetail();loadCeoEvidence(false);}
-    }catch(err){if(epoch===state.requestEpoch){state.loadError=true;updateShell();render();}throw err;
-    }finally{if(epoch===state.requestEpoch)setBusy(false);}
+    }catch(err){if(epoch===state.requestEpoch){state.loadError=true;updateShell();render();if($('ceoDetail').open)drawCeoDetail();}throw err;
+    }finally{if(epoch===state.requestEpoch){setBusy(false);scheduleSnapshotRefresh();}}
   }
+  // This timer only reads snapshots already imported into BOS. It never reads or writes Sheets.
+  function scheduleSnapshotRefresh(){
+    clearTimeout(snapshotRefresh.timer);snapshotRefresh.timer=null;snapshotRefresh.nextAt=null;
+    if(!snapshotRefresh.enabled||!state.access||document.hidden)return;
+    snapshotRefresh.nextAt=Date.now()+300000;
+    snapshotRefresh.timer=setTimeout(function(){
+      snapshotRefresh.timer=null;snapshotRefresh.nextAt=null;
+      if(!snapshotRefresh.enabled||!state.access)return;
+      if(document.hidden||state.loading||state.page!=='dashboard'||document.querySelector('dialog[open]')){scheduleSnapshotRefresh();return;}
+      loadAll().catch(function(){toast('อ่าน Snapshot อัตโนมัติไม่สำเร็จ · เก็บข้อมูลรอบก่อนหน้าไว้');});
+    },300000);
+  }
+  document.addEventListener('visibilitychange',scheduleSnapshotRefresh);
   function updateShell(){
     $('userEmail').textContent=state.access?state.access.email:'';
     $('roleBadge').textContent=state.access?state.access.role:'—';
@@ -608,7 +632,6 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   function currentCard(id){return state.cards.find(function(x){return x.card_id===id;})||null;}
 
   function compactMoney(c){
-    if(c&&c.card_id==='wip'&&!c.balance_snapshot_id)return null;
     if(!c||c.value_numeric==null)return '—';
     var n=Number(c.value_numeric); if(!Number.isFinite(n))return '—';
     if(Math.abs(n)>=1000000)return (n/1000000).toLocaleString('th-TH',{maximumFractionDigits:2})+' ลบ.';
@@ -616,7 +639,6 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     return n.toLocaleString('th-TH',{maximumFractionDigits:0});
   }
   function valuePct(c,max){
-    if(c&&c.card_id==='wip'&&!c.balance_snapshot_id)return null;
     if(!c||c.value_numeric==null||!max)return 0;
     return Math.max(3,Math.min(100,Number(c.value_numeric)/max*100));
   }
@@ -652,7 +674,6 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     }).sort(function(a,b){return String(b.month||'').localeCompare(String(a.month||''));})[0]||null;
   }
   function trendMeta(c){
-    if(c&&c.card_id==='wip'&&!c.balance_snapshot_id)return null;
     if(!c||c.value_numeric==null)return {label:'—',detail:'ไม่มีค่าปัจจุบัน',className:'neutral'};
     var prev=previousComparable(c); if(!prev||prev.value_numeric==null)return {label:'—',detail:'ยังไม่มีฐานเปรียบเทียบ',className:'neutral'};
     var now=Number(c.value_numeric), before=Number(prev.value_numeric);
@@ -820,6 +841,43 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     var rows=ceoRows().slice().sort(function(a,b){return String(a.source_read_at||'').localeCompare(String(b.source_read_at||''));});
     return '<h3>เวลาอ่านข้อมูลแต่ละส่วน</h3><p>เรียงชุดที่อ่านนานที่สุดก่อน · รีเฟรชหน้าเว็บไม่ทำให้วันอ่านต้นทางเปลี่ยน</p><div class="tablewrap"><table class="ceo-freshness"><thead><tr><th>ส่วนงาน / ต้นทาง</th><th>ข้อมูล ณ</th><th>อ่านต้นทาง (เวลาไทย)</th><th>อายุชุดข้อมูล</th><th>สถานะข้อมูล</th></tr></thead><tbody>'+rows.map(function(c){var age=ageDays(c.source_read_at);return '<tr><td>'+ceoButton(c.card_id,ceoTitle(c.card_id),esc(ceoTitle(c.card_id))+' ↗','btn')+'<br>'+esc(c.source_code||'—')+'</td><td>'+esc(c.data_as_of||'—')+'</td><td>'+esc(c.source_read_at?new Date(c.source_read_at).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'}):'ไม่ทราบ')+'</td><td>'+esc(age===null?'ไม่ทราบ':age===0?'ไม่ถึง 1 วัน':age+' วัน')+'</td><td>'+ceoStatusChip(ceoTone(c),ceoStatus(c))+'</td></tr>';}).join('')+'</tbody></table></div>';
   }
+  function ceoSourceHealth(){
+    var selected=function(c){return c.company===ceoScope.company&&c.month===ceoScope.month;};
+    var specs=[
+      {key:'core',label:'Snapshot ส่วนงานเดิม',id:'confidence',cards:ceoRows().filter(function(c){return !c.revenue_snapshot_id&&!c.expense_snapshot_id&&!c.balance_snapshot_id;}),all:state.cards.concat(state.history)},
+      {key:'revenue',label:'รายได้ · Folow / Forecast / Order / จ่าย FG',id:'sales',expected:['finSales','forecast','orderRegister','orders','issue'],all:state.revenue},
+      {key:'expenses',label:'ค่าใช้จ่าย · Monthly expenses',id:'expenses',expected:['expenses'],all:state.expenses},
+      {key:'balances',label:'คงเหลือ · Material / Tooling / PC / Fac2 / QA / FG',id:'workingCapital',expected:['material','tooling','wip','fac2','qaWip','qaFinal','fg'],all:state.balances}
+    ];
+    return specs.map(function(s){
+      var read=state.reads[s.key]||{},cards=s.cards||s.all.filter(selected),companyRows=s.all.filter(function(c){return c.company===ceoScope.company;}),ids=new Set(cards.map(function(c){return c.card_id;}));
+      var missing=(s.expected||[]).filter(function(id){return !ids.has(id);});
+      var times=cards.map(function(c){var t=Date.parse(c.source_read_at||'');return Number.isFinite(t)&&t<=Date.now()?t:null;}),unknownTime=times.some(function(t){return t===null;});
+      var oldest=times.length&&!unknownTime?new Date(Math.min.apply(null,times)).toISOString():null;
+      var tone='warn',label='อ่านได้ · รอตรวจรับ';
+      if(read.status==='error'){tone='risk';label='อ่านไม่สำเร็จ';}
+      else if(read.status==='retained'){tone='warn';label='เก็บรอบก่อน · ชุดหลักอ่านไม่ครบ';}
+      else if(!read.successAt){tone='missing';label='ยังไม่ได้ตรวจ';}
+      else if(!cards.length){tone='missing';label=companyRows.length?'ไม่มีข้อมูลเดือนที่เลือก':'ยังไม่พบชุดข้อมูลของบริษัทนี้';}
+      else if(missing.length){tone='warn';label='พบชุดข้อมูลไม่ครบ';}
+      else if(unknownTime){tone='warn';label='เวลาอ่านต้นทางไม่ถูกต้องหรือไม่ทราบ';}
+      else if(ageDays(oldest)>3){tone='risk';label='ต้นทางเกิน 3 วัน';}
+      else if(cards.every(ceoReady)){tone='good';label='ผ่านเกณฑ์ข้อมูล';}
+      return {key:s.key,label:s.label,id:s.id,cards:cards,expected:s.expected,missing:missing,read:read,oldest:oldest,tone:tone,status:label};
+    });
+  }
+  function ceoReadinessView(){
+    var health=ceoSourceHealth();
+    var html='<h3>การอัปเดตข้อมูล · '+esc(ceoScope.company)+' / '+esc(ceoMonthLabel(ceoScope.month))+'</h3><div class="ctrl-note">รีเฟรชอ่าน Snapshot ที่นำเข้าไว้แล้ว วันอ่านต้นทางไม่เปลี่ยนตามเวลาเปิดเว็บ · ยังไม่มีการซิงก์ Google Sheets อัตโนมัติที่ยืนยันผลแล้ว</div>';
+    html+='<div class="buttons"><button type="button" class="btn primary" data-readiness-refresh="1"'+(state.loading?' disabled':'')+'>อ่าน Snapshot อีกครั้ง</button><label class="snapshot-auto"><input type="checkbox" id="ceoAutoRefresh"'+(snapshotRefresh.enabled?' checked':'')+'> อ่าน Snapshot ทุก 5 นาทีในหน้านี้</label></div><p class="small muted">หยุดพักเมื่อซ่อนแท็บ เปิดรายละเอียด หรือกรอกแบบฟอร์ม · ปิดเมื่อออกจากระบบ · ไม่แก้ข้อมูลต้นทาง</p>';
+    html+='<div class="tablewrap"><table class="ceo-source-health"><thead><tr><th>ชุดข้อมูล</th><th>สถานะการอ่าน</th><th>ตรวจผ่านเว็บล่าสุด</th><th>อ่านต้นทางเก่าสุดในเดือนนี้</th></tr></thead><tbody>'+health.map(function(s){return '<tr data-source-health="'+s.key+'"><td>'+esc(s.label)+'<br><small>'+s.cards.length+' ชุดในเดือนนี้'+(s.expected?' / คาดไว้ '+s.expected.length:'')+'</small></td><td>'+ceoStatusChip(s.tone,s.status)+(s.read.status==='error'?'<br><small>ยังแสดงชุดก่อนหน้าเท่าที่มี</small>':'')+'</td><td>'+ceoReadTime(s.read.checkedAt)+'<br><small>อ่านสำเร็จ '+ceoReadTime(s.read.successAt)+'</small></td><td>'+ceoReadTime(s.oldest)+'</td></tr>';}).join('')+'</tbody></table></div>';
+    return html+'<p>พบ Snapshot ไม่ได้ยืนยันว่ารายการครบหรือปิดงวดแล้ว ต้องตรวจหลักฐานและการรับรองแยกกัน</p><button type="button" class="btn" data-detail-tab="parts">เปิดรายการที่ต้องตรวจ ↗</button>';
+  }
+  function ceoReadinessQueue(){
+    var names={finSales:'ยอดขาย Folow',forecast:'Forecast',orderRegister:'ใบสั่งซื้อในเดือน',orders:'ออเดอร์ค้างส่ง',issue:'จ่าย FG',expenses:'Monthly expenses',material:'วัตถุดิบ',tooling:'Tooling',wip:'คงเหลือ PC',fac2:'คงเหลือ Fac2',qaWip:'WIP QA',qaFinal:'QA Final',fg:'สินค้าสำเร็จรูป'};
+    var health=ceoSourceHealth().filter(function(s){return s.expected;});
+    return '<h3>รายการตรวจความพร้อม</h3><p>บริษัท '+esc(ceoScope.company)+' · '+esc(ceoMonthLabel(ceoScope.month))+' · แยกการมีชุดข้อมูลออกจากการผ่านเกณฑ์ธุรกิจ</p><div class="tablewrap"><table class="ceo-readiness-queue"><thead><tr><th>ส่วนงาน</th><th>ชุดข้อมูลรายรายการ</th><th>ความพร้อม</th><th>รายการรอตรวจ</th><th>ขั้นตอนถัดไป</th></tr></thead><tbody>'+health.map(function(s){return s.expected.map(function(id){var c=s.cards.find(function(r){return r.card_id===id;}),review=c&&c.summary&&c.summary.reviewRows;return '<tr><td>'+ceoButton(id,names[id],esc(names[id])+' ↗','btn')+'</td><td>'+esc(!c?'ยังไม่มีในบริษัท / เดือนนี้':s.read.status==='ok'?'อ่านชุดที่นำเข้าแล้ว':'ข้อมูลรอบก่อนหน้า')+'</td><td>'+ceoStatusChip(c?ceoTone(c):'missing',c?ceoStatus(c):'ยังตรวจไม่ได้')+'</td><td>'+esc(Number.isSafeInteger(review)?review.toLocaleString('th-TH'):'—')+'</td><td>'+esc(!c?'รอชุดข้อมูลที่ผ่านการตรวจและนำเข้า':ceoNumber(c)===null?'เปิดหลักฐานของรายการที่ยังไม่ทราบค่า':c.production_accepted!==true?'ตรวจหลักฐานและรับรองทางธุรกิจ':ceoReady(c)?'เปิดตรวจขอบเขตและหลักฐาน':'ตรวจวันอ่านและฐานมูลค่า')+'</td></tr>';}).join('');}).join('')+'</tbody></table></div><div class="ctrl-note">จำนวนรอตรวจแยกตามส่วนงาน อาจมีรายการเดียวกันอยู่หลายขั้น จึงไม่รวมเป็นจำนวนงานหรือมูลค่ารวม</div>';
+  }
   var balanceIssueNames={WEIGHT_MISSING:'ไม่มีน้ำหนักต่อหน่วยที่ใช้คำนวณได้',BALANCE_MISSING:'ไม่ทราบคงเหลือ',NEGATIVE_BALANCE:'คงเหลือติดลบ',UNIT_UNKNOWN:'ไม่ทราบหน่วย',PRICE_UNIT_UNKNOWN:'ไม่ทราบหน่วยราคา',UNIT_CONVERSION_UNVERIFIED:'หน่วยคงเหลือและราคาต่างกัน ยังไม่มีสูตรแปลงที่ตรวจสอบได้',PRICE_MISSING:'ไม่มีราคาตรงรายการ',PRICE_CONFLICT:'ราคาต้นทางซ้ำหรือขัดแย้ง',ALIAS_CONFLICT:'ชื่อเทียบเคียงขัดแย้ง',PART_MISSING:'ไม่มีรหัสรายการ',CUSTOMER_MISSING:'ไม่มีลูกค้า',DUPLICATE_BALANCE:'รายการคงเหลือซ้ำ รอตรวจแยกกอง',LEDGER_IDENTITY_MISSING:'Job / ลูกค้า / Part ไม่ครบ',DUPLICATE_TRANSACTION:'เลขรับ–จ่ายซ้ำหรือว่าง',LEDGER_DATE_INVALID:'วันที่รับ–จ่ายไม่ถูกต้อง',LEDGER_QUANTITY_INVALID:'จำนวนรับ–จ่ายไม่ถูกต้อง',LEDGER_ACTION_UNKNOWN:'ประเภทรายการรับ–จ่ายยังไม่รองรับ'};
   function balanceSource(s,label){
     if(!s||!/^[-\w]+$/.test(s.spreadsheetId||'')||!Number.isInteger(s.gid)||s.gid<0||!Number.isInteger(s.row)||s.row<1)return esc(s&&s.tab||'—');
@@ -915,10 +973,10 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     var months=ceoMonths();if(!months.includes(ceoScope.month))ceoScope.month=months.includes(state.kpis&&state.kpis.current_month)?state.kpis.current_month:months[0]||'';
     if(!ceoScope.company)ceoScope.company=(state.cards[0]||state.history[0]||state.revenue[0]||{}).company||'P&T';
     var rows=ceoRows(),first=rows[0],sourceAge=first?Math.max.apply(null,rows.map(function(c){var age=ageDays(c.source_read_at);return age===null?Infinity:age;})):null;
-    var status=state.balanceError?'โหลดคงเหลือใหม่ไม่สำเร็จ · ตรวจเวลาแต่ละ Card':state.expenseError?'โหลดรายละเอียดต้นทุนไม่สำเร็จ · ตรวจเวลาแต่ละ Card':state.revenueError?'โหลดข้อมูลรายได้ใหม่ไม่สำเร็จ · ตรวจเวลาแต่ละ Card':state.loadError?'รีเฟรชไม่สำเร็จ · กำลังแสดงข้อมูลที่โหลดก่อนหน้า':!rows.length?'ยังไม่มี Snapshot':(!Number.isFinite(sourceAge)?'บางชุดไม่ทราบเวลาอ่านต้นทาง':'ชุดเก่าสุด '+sourceAge+' วันก่อน')+' · '+(rows.every(function(c){return c.production_accepted===true;})?'รับรองแล้ว':'รอตรวจรับ');
-    var head='<div class="ctrl-head"><div class="ctrl-brand"><div class="ctrl-mark" aria-hidden="true">P<i>&</i>T</div><div><h1>SMART <span>BOS</span><em>Executive Control Tower</em></h1><p>Business Operating System · ศูนย์ควบคุมธุรกิจ '+esc(ceoScope.company)+'</p></div></div><div class="ctrl-filters"><label>เดือน<select id="ceoMonth" aria-label="เดือนของ Snapshot">'+(months.length?months.map(function(m){return '<option value="'+esc(m)+'"'+(m===ceoScope.month?' selected':'')+'>'+esc(ceoMonthLabel(m))+'</option>';}).join(''):'<option value="">ยังไม่มีข้อมูล</option>')+'</select></label><label title="กรองลูกค้าได้ในรายละเอียดรายได้ ส่วนภาพรวมแสดงทั้งบริษัท">ลูกค้า<select disabled aria-label="ภาพรวมทั้งบริษัท กรองลูกค้าได้ในรายละเอียดรายได้"><option>ทั้งหมด</option></select></label><label>มุมมอง<select id="ceoProcess" aria-label="เปิดรายละเอียดตามกระบวนการ"><option value="">ภาพรวม</option><option value="production">การผลิต</option><option value="inventory">คลังสินค้า</option><option value="quality">คุณภาพ</option><option value="finance">การเงิน</option></select></label><button type="button" class="btn" id="ceoRefresh">↻ รีเฟรช</button></div></div>';
+    var status=state.loadError?'รีเฟรชไม่สำเร็จ · กำลังแสดงข้อมูลที่โหลดก่อนหน้า':state.balanceError?'โหลดคงเหลือใหม่ไม่สำเร็จ · ตรวจเวลาแต่ละ Card':state.expenseError?'โหลดรายละเอียดต้นทุนไม่สำเร็จ · ตรวจเวลาแต่ละ Card':state.revenueError?'โหลดข้อมูลรายได้ใหม่ไม่สำเร็จ · ตรวจเวลาแต่ละ Card':!rows.length?'ยังไม่มี Snapshot':(!Number.isFinite(sourceAge)?'บางชุดไม่ทราบเวลาอ่านต้นทาง':'ชุดเก่าสุด '+sourceAge+' วันก่อน')+' · '+(rows.every(function(c){return c.production_accepted===true;})?'รับรองแล้ว':'รอตรวจรับ');
+    var head='<div class="ctrl-head"><div class="ctrl-brand"><div class="ctrl-mark" aria-hidden="true">P<i>&</i>T</div><div><h1>SMART <span>BOS</span><em>Executive Control Tower</em></h1><p>Business Operating System · ศูนย์ควบคุมธุรกิจ '+esc(ceoScope.company)+'</p></div></div><div class="ctrl-filters"><label>เดือน<select id="ceoMonth" aria-label="เดือนของ Snapshot">'+(months.length?months.map(function(m){return '<option value="'+esc(m)+'"'+(m===ceoScope.month?' selected':'')+'>'+esc(ceoMonthLabel(m))+'</option>';}).join(''):'<option value="">ยังไม่มีข้อมูล</option>')+'</select></label><label title="กรองลูกค้าได้ในรายละเอียดรายได้ ส่วนภาพรวมแสดงทั้งบริษัท">ลูกค้า<select disabled aria-label="ภาพรวมทั้งบริษัท กรองลูกค้าได้ในรายละเอียดรายได้"><option>ทั้งหมด</option></select></label><label>มุมมอง<select id="ceoProcess" aria-label="เปิดรายละเอียดตามกระบวนการ"><option value="">ภาพรวม</option><option value="production">การผลิต</option><option value="inventory">คลังสินค้า</option><option value="quality">คุณภาพ</option><option value="finance">การเงิน</option></select></label><button type="button" class="btn" id="ceoRefresh" title="อ่าน Snapshot ที่นำเข้าไว้แล้ว ไม่ได้อ่าน Google Sheets รอบใหม่">↻ รีเฟรช</button></div></div>';
     var domains=[['sales','ขาย'],['production','ผลิต'],['inventory','คลังสินค้า'],['quality','คุณภาพ'],['purchaseGroup','จัดซื้อ'],['cost','ต้นทุน'],['finance','การเงิน'],['ai','AI Manager']];
-    head+='<nav class="ctrl-domains" aria-label="รายละเอียดธุรกิจ"><button type="button" data-ceo-detail="confidence">CEO</button>'+domains.map(function(d){return ceoButton(d[0],d[1],d[1],'');}).join('')+'<span class="ctrl-scope '+(state.loadError?'ctrl-error ctrl-state-risk':'ctrl-state-'+ceoGroupTone(rows.map(function(c){return c.card_id;})))+'" role="status"><i class="ctrl-status-dot"></i>'+esc(ceoMonthLabel(ceoScope.month))+' · '+esc(status)+'</span></nav>';
+    head+='<nav class="ctrl-domains" aria-label="รายละเอียดธุรกิจ"><button type="button" data-ceo-detail="confidence">CEO</button>'+domains.map(function(d){return ceoButton(d[0],d[1],d[1],'');}).join('')+'<span class="ctrl-scope '+(state.loadError||state.revenueError||state.expenseError||state.balanceError?'ctrl-error ctrl-state-risk':'ctrl-state-'+ceoGroupTone(rows.map(function(c){return c.card_id;})))+'" role="status"><i class="ctrl-status-dot"></i>'+esc(ceoMonthLabel(ceoScope.month))+' · '+esc(status)+'</span></nav>';
     var kpis='<div class="ctrl-kpis" aria-label="ตัวชี้วัดผู้บริหาร">'+ceoSpecs.map(function(s){var c=ceoMetric(s[0]);return ceoButton(s[0],s[1],'<span class="ctrl-kpi-top">'+ceoIcon(s[3])+'<span>'+s[1]+'<small>'+s[2]+'</small></span></span><strong>'+esc(ceoCompact(c))+'</strong><span class="ctrl-kpi-meta" title="'+esc(c?ceoStatus(c):ceoReason(s[0]))+'">'+ceoStatusChip(ceoTone(c),c?ceoStatus(c):s[0]==='finSales'?'รอข้อมูล Folow':'ยังคำนวณไม่ได้')+'</span>'+ceoSpark(s[0])+'<span class="ctrl-kpi-foot"><span>'+esc(ceoDelta(s[0]))+'</span><span>↗</span></span>','ctrl-kpi',ceoTone(c));}).join('')+'</div>';
     var funnel=[['forecast','คาดการณ์','Forecast','#00b8ff'],['orderRegister','ใบสั่งซื้อ','Order','#00e5ff'],['issue','จ่ายสินค้า','FG Issued','#b44dff'],['finSales','ยอดขายจริง','Folow','#00ffa3']];
     var max=Math.max.apply(null,funnel.map(function(s){return Math.max(0,ceoNumber(ceoMetric(s[0]))||0);}).concat([1]));
@@ -939,10 +997,10 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     var panelTabs='<div class="ctrl-panel-tabs" role="tablist" aria-label="ส่วนงานใน Dashboard">'+['รายได้','เงินทุน','AI','ต้นทุน','ออเดอร์','KPI'].map(function(label,i){return '<button type="button" id="ceo-panel-tab-'+i+'" role="tab" data-ceo-panel="'+i+'" aria-controls="ceo-panel-'+i+'">'+label+'</button>';}).join('')+'</div>';
     return '<div class="ctrl-shell">'+head+kpis+panelTabs+'<div class="ctrl-grid">'+ceoPanel(1,'รายได้ตามขั้นตอน','Revenue Funnel','sales',funnelHtml,'ctrl-revenue')+ceoPanel(2,'เงินในกระบวนการ','Money in Process','workingCapital',flowHtml,'ctrl-money')+ceoPanel(3,'ประเด็นที่ต้องติดตาม','AI Manager','ai',aiHtml,'ctrl-ai')+ceoPanel(4,'ต้นทุนและข้อสังเกต','Cost & Anomaly',ceoCard('expenses')?.expense_snapshot_id?'expenses':'cost',costHtml,'ctrl-cost')+ceoPanel(5,'สถานะคำสั่งซื้อ','Order Status','orderStatus',orderHtml,'ctrl-orders')+ceoPanel(6,'KPI และความพร้อม','Data Confidence','confidence',confidenceHtml,'ctrl-confidence')+'</div>'+footer+'</div>';
   }
-  function evidenceKey(){var c=ceoRows().find(function(r){return !r.revenue_snapshot_id&&!r.expense_snapshot_id;});return c?JSON.stringify([c.generation,c.month,c.company]):null;}
+  function evidenceKey(){var c=ceoRows().find(function(r){return !r.revenue_snapshot_id&&!r.expense_snapshot_id&&!r.balance_snapshot_id;});return c?JSON.stringify([c.generation,c.month,c.company]):null;}
   function ceoEvidence(){var key=evidenceKey();return key?evidenceCache.get(key):null;}
   async function loadCeoEvidence(force){
-    var c=ceoRows().find(function(r){return !r.revenue_snapshot_id&&!r.expense_snapshot_id;}),key=evidenceKey();if(!key)return;
+    var c=ceoRows().find(function(r){return !r.revenue_snapshot_id&&!r.expense_snapshot_id&&!r.balance_snapshot_id;}),key=evidenceKey();if(!key)return;
     if(!force&&evidenceCache.has(key))return;
     var entry={loading:true,payload:null,error:false};evidenceCache.set(key,entry);
     try{
@@ -1059,7 +1117,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     document.querySelectorAll('.ceo-detail-tabs [data-detail-tab]').forEach(function(b){var selected=b.dataset.detailTab===detailState.tab;b.id='ceo-tab-'+b.dataset.detailTab;b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-controls','ceoDetailBody');b.tabIndex=selected?0:-1;});
     body.setAttribute('role','tabpanel');body.setAttribute('aria-labelledby','ceo-tab-'+detailState.tab);body.tabIndex=0;
     if(id==='ai'&&detailState.tab!=='trend'){body.innerHTML=ceoPriorityDetails();return;}
-    if(id==='confidence'&&['summary','parts'].includes(detailState.tab)){body.innerHTML='<h3>'+ceoRows().filter(ceoReady).length+' / '+ceoRows().length+' ส่วนงานผ่านเกณฑ์ข้อมูล</h3><p>มีค่า + รับรอง + ต้นทางปัจจุบัน + ฐานตรง</p>'+ceoFreshnessTable()+ceoFollowupButtons(id,null);return;}
+    if(id==='confidence'&&['summary','parts'].includes(detailState.tab)){body.innerHTML=detailState.tab==='summary'?ceoReadinessView():ceoReadinessQueue()+ceoFreshnessTable()+ceoFollowupButtons(id,null);return;}
     if(rawCard?.balance_snapshot_id){body.innerHTML=balanceDetail(rawCard,detailState.tab);return;}
     if(id==='expenses'&&rawCard?.expense_snapshot_id){body.innerHTML=expenseDetail(rawCard,detailState.tab);return;}
     var note='<div class="ctrl-note">'+esc(rawCard&&rawCard.revenue_snapshot_id?rawCard.basis:ceoReason(id))+'</div>';
@@ -1269,6 +1327,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   document.addEventListener('click',function(e){
     var b=e.target.closest('button');if(!b)return;
     if(b.id==='ceoFullscreen'){toggleCeoFullscreen();return;}
+    if(b.dataset.readinessRefresh){loadAll().catch(function(){toast('อ่าน Snapshot ไม่สำเร็จ · กรุณาตรวจสถานะชุดข้อมูล');});return;}
     if(b.dataset.ceoPanel!==undefined){ceoPanelIndex=Number(b.dataset.ceoPanel);syncCeoPanels();return;}
     if(b.dataset.expenseMonth){if(!ceoMonths().includes(b.dataset.expenseMonth))return;ceoScope.month=b.dataset.expenseMonth;render();openCeoDetail('expenses');toast('เปลี่ยนเดือนภาพรวมเป็น '+ceoMonthLabel(ceoScope.month));return;}
     if(b.dataset.expenseItem!==undefined){openCeoDetail('expenses');detailState.tab='parts';detailState.expenseFilters={query:'',mainType:b.dataset.expenseMain||'',category:b.dataset.expenseCategory||'',item:b.dataset.expenseItem,status:'',page:0};drawCeoDetail();return;}
@@ -1328,6 +1387,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     detailState.tab=tabs[next].dataset.detailTab;drawCeoDetail();tabs[next].focus();$('ceoDetailBody').scrollTop=0;
   });
   document.addEventListener('change',function(e){
+    if(e.target.id==='ceoAutoRefresh'){snapshotRefresh.enabled=e.target.checked;scheduleSnapshotRefresh();toast(snapshotRefresh.enabled?'เปิดอ่าน Snapshot ทุก 5 นาทีขณะอยู่หน้าภาพรวม':'ปิดอ่าน Snapshot อัตโนมัติแล้ว');return;}
     if(e.target.id==='ceoManagePage'){state.page=e.target.value;render();return;}
     if(e.target.id==='ceoMonth'){ceoScope.month=e.target.value;render();$('ceoMonth').focus();return;}
     if(e.target.id==='ceoProcess'){if(e.target.value)openCeoDetail(e.target.value);e.target.value='';return;}
