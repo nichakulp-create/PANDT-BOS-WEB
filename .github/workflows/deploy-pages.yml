@@ -27,8 +27,15 @@ jobs:
         run: |
           test -f index.html
           grep -q "P&T BOS Management" index.html
-          grep -q "AI MANAGER" index.html
+          grep -q "AI Manager" index.html
+          grep -q "function ceoDashboard" index.html
           ! grep -qi "service.role" index.html
+          node -e "const fs=require('fs'),vm=require('vm'); new vm.Script(fs.readFileSync('index.html','utf8').match(/<script>([\\s\\S]*?)<\\/script>/)[1]);"
+
+      - name: Stage application only
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -38,7 +45,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment

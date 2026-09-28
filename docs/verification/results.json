@@ -1,0 +1,88 @@
+[
+  {
+    "viewport": "1366x768",
+    "bodyScroll": false,
+    "drawerWidth": 1024.5
+  },
+  {
+    "viewport": "1440x900",
+    "bodyScroll": false,
+    "drawerWidth": 1080
+  },
+  {
+    "viewport": "1920x1080",
+    "bodyScroll": false,
+    "drawerWidth": 1440
+  },
+  {
+    "viewport": "1280x720",
+    "bodyScroll": false,
+    "drawerWidth": 960
+  },
+  {
+    "viewport": "1366x600",
+    "bodyScroll": false,
+    "drawerWidth": 1024.5
+  },
+  {
+    "viewport": "1024x768",
+    "bodyScroll": false,
+    "drawerWidth": 1024
+  },
+  {
+    "viewport": "768x1024",
+    "bodyScroll": false,
+    "layout": "six-panel overview",
+    "drawerWidth": 768
+  },
+  {
+    "viewport": "390x844",
+    "bodyScroll": false,
+    "layout": "panel tabs",
+    "drawerWidth": 390
+  },
+  {
+    "viewport": "390x667",
+    "bodyScroll": false,
+    "layout": "panel tabs",
+    "drawerWidth": 390
+  },
+  {
+    "viewport": "844x390",
+    "bodyScroll": false,
+    "layout": "panel tabs",
+    "drawerWidth": 844
+  },
+  {
+    "viewport": "820x780",
+    "bodyScroll": false,
+    "layout": "panel tabs",
+    "drawerWidth": 820
+  },
+  {
+    "statusColors": true,
+    "statusRefresh": true,
+    "drawerStatus": true,
+    "readinessNotPerformance": true
+  },
+  {
+    "primaryEntries": 28,
+    "monthIsolation": true,
+    "evidenceCache": true,
+    "escapedEvidence": true,
+    "keyboard": true,
+    "followupWrites": "mock only",
+    "roleGates": true,
+    "anonymousNoReads": true,
+    "login": "mock only",
+    "errorRecovery": true,
+    "productionWrites": 0,
+    "consoleErrors": 0,
+    "missingZeroInvalid": true,
+    "salesSourceGate": true,
+    "comparableDelta": true,
+    "emptySnapshot": true,
+    "fullscreenToggle": true,
+    "compactPanels": true
+  }
+]
