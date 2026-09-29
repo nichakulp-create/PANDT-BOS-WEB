@@ -26,7 +26,7 @@ const cards=snapshots.map(({rows,...c})=>({...c,expense_snapshot_id:'DEMO-'+c.mo
    if(table==='bos_expense_cards')return control.failCards?reply({message:'DEMO failed'},500):reply(cards.concat([{...cards.at(-1),company:'OTHER',value_numeric:888888888}]));
    if(table==='bos_expense_snapshots'){
     control.reads++;if(control.delay)await new Promise(r=>{control.release=r;});if(control.failRows)return reply({message:'DEMO failed'},500);
-    const month=(u.searchParams.get('id')||'').replace('eq.DEMO-','');return reply([{rows:snapshots.find(c=>c.month===month).rows}]);
+    const snapshotId=(u.searchParams.get('id')||'').replace('eq.',''),month=cards.find(c=>c.expense_snapshot_id===snapshotId)?.month;return reply([{rows:snapshots.find(c=>c.month===month).rows}]);
    }
    return reply([]);
   });
@@ -64,6 +64,18 @@ const cards=snapshots.map(({rows,...c})=>({...c,expense_snapshot_id:'DEMO-'+c.mo
   control.failCards=true;await page.locator('#ceoRefresh').click();await page.getByText(/โหลดรายละเอียดต้นทุนไม่สำเร็จ/).waitFor();await page.locator('[data-ceo-detail=expenses]').first().click();assert.match(await page.locator('.revenue-stats').textContent(),/ไม่ระบุบริษัท 60/,'failed reload retains the prior source instead of falling back to legacy');await page.keyboard.press('Escape');
   control.failCards=false;await page.locator('#ceoRefresh').click();await page.locator('[data-ceo-detail=expenses]').first().click();control.failRows=true;await page.locator('[data-detail-tab=parts]').click();await page.locator('#expenseRetry').waitFor();control.failRows=false;await page.locator('#expenseRetry').click();await page.locator('#expenseFilter').waitFor();await page.keyboard.press('Escape');
   await page.locator('#ceoMonth').selectOption('2026-09');await page.locator('[data-ceo-detail=expenses]').first().click();assert.match(await page.locator('#ceoDetailBody').textContent(),/ไม่ได้หมายความว่าค่าใช้จ่ายเป็นศูนย์/);await page.keyboard.press('Escape');
+  const approval={id:'DEMO-CONFIRMED',company:'P&T',month:'2026-08',confirmedAt:'2026-09-29T07:59:16Z',statement:'DEMO confirmation',sourceContentHash:require('node:crypto').createHash('sha256').update(JSON.stringify(source.values)).digest('hex'),sourceRows:source.values.flatMap((r,i)=>r[5]===8?[i+1]:[])};
+  const [confirmed]=buildExpenseSnapshots({...source,companyConfirmations:[approval]},['2026-08'],'2026-09-29');
+  snapshots[7]=confirmed;const {rows:confirmedRows,...confirmedCard}=confirmed;cards[7]={...confirmedCard,expense_snapshot_id:'DEMO-approved-2026-08'};
+  await page.locator('#ceoRefresh').click();await page.locator('#ceoMonth').selectOption('2026-08');
+  assert.match(await page.locator('.ctrl-cost-chart [data-expense-month="2026-08"]').getAttribute('aria-label'),/ผ่านกฎคำนวณ/);
+  await page.locator('[data-ceo-detail=expenses]').first().click();assert.match(await page.locator('#ceoDetailBody').textContent(),/ผู้ใช้ยืนยันให้ 60 รายการเป็นของ P&T/);
+  assert.match(await page.locator('.revenue-stats > div').first().textContent(),/60 \/ 60/);
+  await page.locator('[data-detail-tab=parts]').click();await page.locator('#expenseFilter').waitFor();
+  assert.ok((await page.locator('.revenue-table tbody tr td:nth-child(2)').allTextContents()).every(x=>/P&T.*ผู้ใช้ยืนยัน/.test(x)));
+  assert.equal(await page.locator('[data-expense-issue=COMPANY_MISSING]').count(),0);
+  for(const [w,h] of [[1366,768],[390,844]]){await page.setViewportSize({width:w,height:h});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth),w);await page.screenshot({path:output+'/expense-confirmed-'+w+'-demo.png'});}
+  await page.keyboard.press('Escape');await page.setViewportSize({width:1366,height:768});
   control.delay=true;await page.locator('#ceoMonth').selectOption('2026-07');await page.locator('[data-ceo-detail=expenses]').first().click();await page.locator('[data-detail-tab=parts]').click();await page.getByText('กำลังอ่านหลักฐานค่าใช้จ่าย…').waitFor();await page.keyboard.press('Escape');await page.locator('#logout').click();await page.locator('#loginScreen').waitFor();control.release();await page.waitForTimeout(200);
   assert.equal(await page.locator('#view').textContent(),'');assert.equal(await page.locator('#ceoDetailBody').textContent(),'');assert.equal(control.writes,0);assert.deepEqual(errors,[]);
   console.log(JSON.stringify({status:'PASS',synthetic:true,viewports:8,reasonDrilldown:true,monthlyStates:3,rowsBeyond1000:true,unknownCompanyWithheld:true,sourceLinks:true,filters:true,actionDraft:true,retry:true,failedRefreshRetainsEvidence:true,logoutRace:true,productionWrites:0,consoleErrors:0}));
