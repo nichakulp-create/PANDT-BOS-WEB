@@ -77,7 +77,7 @@ function newCard(id,n=1001){const rows=demoRows(n,id),sum=rows.reduce((s,r)=>s+(
   await page.locator('#revenueFilter [name=timing]').selectOption('DUE_SOON');assert.match(await page.locator('.revenue-results').textContent(),/2 \/ 80/,'select filters immediately');
   await page.locator('[data-revenue-reset]').click();assert.match(await page.locator('.revenue-results').textContent(),/80 \/ 80/);
   assert.equal(await page.locator('#revenueFilter [name=timing]').inputValue(),'');await page.keyboard.press('Escape');
-  await page.locator('.ctrl-domains [data-ceo-detail="ai"]').click();assert.match(await page.locator('#ceoDetailBody').textContent(),/คิวติดตามตามหลักฐาน/);assert.equal(await page.locator('#ceoDetailBody [data-ceo-priority="orders-overdue"]').count(),1);await page.keyboard.press('Escape');
+  await page.locator('.ctrl-domains [data-ceo-detail="ai"]').click();assert.match(await page.locator('#ceoDetailBody').textContent(),/คิวติดตามตามหลักฐาน/);for(const label of ['ข้อเท็จจริง','ผลกระทบที่ทราบ','หลักฐาน / ความพร้อม','ตรวจอะไรต่อ','ข้อเสนอเพื่อบริหาร'])assert.ok((await page.locator('#ceoDetailBody').textContent()).includes(label));assert.equal(await page.locator('#ceoDetailBody [data-ceo-priority="orders-overdue"]').count(),1);await page.keyboard.press('Escape');
   await page.locator('.ctrl-domains [data-ceo-detail="confidence"]').click();
   assert.equal(await page.locator('.ceo-source-health tbody tr').count(),4);
   await page.locator('.ceo-detail-tabs [data-detail-tab=parts]').click();
