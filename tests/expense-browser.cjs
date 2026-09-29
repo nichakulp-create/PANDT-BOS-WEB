@@ -34,13 +34,15 @@ const cards=snapshots.map(({rows,...c})=>({...c,expense_snapshot_id:'DEMO-'+c.mo
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('.ctrl-kpi').first().waitFor();
   assert.ok(!(await page.locator('#view').textContent()).includes('888.88'));
   assert.equal(await page.locator('.ctrl-kpi[data-ceo-detail=totalCost] strong').textContent(),'—');
-  await page.locator('[data-expense-month="2026-08"]').click();assert.equal(await page.locator('#ceoMonth').inputValue(),'2026-08');
+  assert.match(await page.locator('.ctrl-cost-chart [data-expense-month="2026-08"]').getAttribute('aria-label'),/มี 60 รายการ · รอยืนยันบริษัท/);
+  assert.match(await page.locator('.ctrl-cost-chart [data-expense-month="2026-09"]').getAttribute('title'),/ไม่มีรายการเดือนนี้/);
+  await page.locator('.ctrl-cost-chart [data-expense-month="2026-08"]').click();assert.equal(await page.locator('#ceoMonth').inputValue(),'2026-08');
   assert.match(await page.locator('#ceoDetailBody').textContent(),/15:00 เวลาไทย/);assert.match(await page.locator('.revenue-stats').textContent(),/ไม่ระบุบริษัท 60/);assert.match(await page.locator('.revenue-stats > div').first().textContent(),/—/);await page.keyboard.press('Escape');
-  const viewports=[[1366,768],[1920,1080],[1366,600],[1280,720],[768,1024],[390,844],[844,390]];
+  const viewports=[[1366,768],[1440,900],[1920,1080],[1366,600],[1280,720],[768,1024],[390,844],[844,390]];
   for(const month of ['2026-09','2026-08','2026-03']){
    await page.locator('#ceoMonth').selectOption(month);
    for(const [w,h] of viewports){await page.setViewportSize({width:w,height:h});if(await page.locator('[data-ceo-panel="3"]').isVisible())await page.locator('[data-ceo-panel="3"]').click();const d=await page.evaluate(()=>({sw:document.documentElement.scrollWidth,sh:document.documentElement.scrollHeight,panels:[...document.querySelectorAll('.ctrl-panel')].filter(e=>e.getBoundingClientRect().height).map(e=>({name:e.className,h:e.clientHeight,sh:e.scrollHeight}))}));assert.equal(d.sw,w);assert.equal(d.sh,h);d.panels.forEach(p=>assert.ok(p.sh<=p.h+1,JSON.stringify({month,w,h,p})));}
-   await page.setViewportSize({width:1366,height:768});
+   await page.setViewportSize({width:1366,height:768});await page.screenshot({path:output+'/expense-'+month+'-dashboard-demo.png'});
   }
   await page.screenshot({path:output+'/expense-dashboard-demo.png'});
   await page.locator('[data-ceo-detail=expenses]').first().click();await page.locator('[data-detail-tab=trend]').click();assert.match(await page.locator('#ceoDetailBody').textContent(),/เดือนเดียวกันปีก่อน/);assert.match(await page.locator('#ceoDetailBody').textContent(),/ข้อมูลเดือนเปรียบเทียบไม่ครบ/);
@@ -56,6 +58,7 @@ const cards=snapshots.map(({rows,...c})=>({...c,expense_snapshot_id:'DEMO-'+c.mo
   assert.ok((await page.locator('.revenue-table tbody tr td:nth-child(2)').allTextContents()).every(x=>x==='ไม่ระบุบริษัท'));
   assert.ok((await page.locator('.revenue-table tbody tr td:nth-child(3)').allTextContents()).every(x=>x==='—'));
   assert.match(await page.locator('.revenue-table tbody').textContent(),/-1.01/);
+  await page.locator('[data-expense-issue=COMPANY_MISSING]').click();assert.match(await page.locator('.expense-results').textContent(),/60 \/ 60/);assert.match(await page.locator('#ceoDetailBody').textContent(),/เหตุผลที่เลือก: ไม่ระบุบริษัท/);
   for(const [w,h] of [[1366,768],[768,1024],[390,844]]){await page.setViewportSize({width:w,height:h});assert.ok(Math.abs((await page.locator('#ceoDetail').boundingBox()).width-(w>=1280?w*.75:w))<1);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth),w);await page.screenshot({path:output+'/expense-detail-'+w+'-demo.png'});}
   await page.keyboard.press('Escape');await page.setViewportSize({width:1366,height:768});
   control.failCards=true;await page.locator('#ceoRefresh').click();await page.getByText(/โหลดรายละเอียดต้นทุนไม่สำเร็จ/).waitFor();await page.locator('[data-ceo-detail=expenses]').first().click();assert.match(await page.locator('.revenue-stats').textContent(),/ไม่ระบุบริษัท 60/,'failed reload retains the prior source instead of falling back to legacy');await page.keyboard.press('Escape');
@@ -63,6 +66,6 @@ const cards=snapshots.map(({rows,...c})=>({...c,expense_snapshot_id:'DEMO-'+c.mo
   await page.locator('#ceoMonth').selectOption('2026-09');await page.locator('[data-ceo-detail=expenses]').first().click();assert.match(await page.locator('#ceoDetailBody').textContent(),/ไม่ได้หมายความว่าค่าใช้จ่ายเป็นศูนย์/);await page.keyboard.press('Escape');
   control.delay=true;await page.locator('#ceoMonth').selectOption('2026-07');await page.locator('[data-ceo-detail=expenses]').first().click();await page.locator('[data-detail-tab=parts]').click();await page.getByText('กำลังอ่านหลักฐานค่าใช้จ่าย…').waitFor();await page.keyboard.press('Escape');await page.locator('#logout').click();await page.locator('#loginScreen').waitFor();control.release();await page.waitForTimeout(200);
   assert.equal(await page.locator('#view').textContent(),'');assert.equal(await page.locator('#ceoDetailBody').textContent(),'');assert.equal(control.writes,0);assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({status:'PASS',synthetic:true,viewports:7,monthlyStates:3,rowsBeyond1000:true,unknownCompanyWithheld:true,sourceLinks:true,filters:true,actionDraft:true,retry:true,failedRefreshRetainsEvidence:true,logoutRace:true,productionWrites:0,consoleErrors:0}));
+  console.log(JSON.stringify({status:'PASS',synthetic:true,viewports:8,reasonDrilldown:true,monthlyStates:3,rowsBeyond1000:true,unknownCompanyWithheld:true,sourceLinks:true,filters:true,actionDraft:true,retry:true,failedRefreshRetainsEvidence:true,logoutRace:true,productionWrites:0,consoleErrors:0}));
  }finally{await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});
