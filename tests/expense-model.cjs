@@ -22,6 +22,23 @@ assert.equal(bad.value_numeric,null);assert.equal(bad.rows[0].status,'REVIEW');a
 const [duplicate]=buildExpenseSnapshots({...source,values:[headers,row(10),row(10)]},['2026-02'],'2026-09-28');
 assert.equal(duplicate.value_numeric,20,'no undocumented deduplication without an invoice key');
 const [blank]=buildExpenseSnapshots({...source,values:[headers,row(10,'')]},['2026-02'],'2026-09-28');assert.equal(blank.value_numeric,null);assert.equal(blank.value_status,'UNKNOWN_VALUE');
+// Business confirmation is bound to exact source content and selected rows/month.
+const {createHash}=require('node:crypto');
+const approvalSource={...source,values:[headers,row(10,''),row(20,'',3),row(null,''),row(30,'TSP')]};
+const original=JSON.stringify(approvalSource.values);
+const confirmation={id:'DEMO-APPROVAL',company:'P&T',month:'2026-02',confirmedAt:'2026-09-28T09:00:00Z',statement:'DEMO user confirms selected rows',sourceContentHash:createHash('sha256').update(original).digest('hex'),sourceRows:[2,4]};
+const approvedSource={...approvalSource,companyConfirmations:[confirmation]};
+const [confirmed,otherMonth]=buildExpenseSnapshots(approvedSource,['2026-02','2026-03'],'2026-09-28');
+assert.equal(JSON.stringify(approvalSource.values),original,'source cells are never overwritten');
+assert.equal(confirmed.value_numeric,10);assert.equal(confirmed.summary.valuedRows,1);assert.equal(confirmed.summary.reviewRows,1);
+assert.equal(confirmed.summary.scope.companyConfirmedRows,2);assert.equal(confirmed.summary.scope.unassignedCompanyRows,0);
+assert.equal(confirmed.rows[0].sourceCompany,'');assert.equal(confirmed.rows[0].company,'P&T');assert.equal(confirmed.rows[0].companyConfirmation.id,confirmation.id);
+assert.deepEqual(confirmed.rows[1].issues,['AMOUNT_MISSING'],'confirmation never invents missing money');
+assert.equal(otherMonth.value_numeric,null);assert.equal(otherMonth.summary.scope.unassignedCompanyRows,1);
+assert.equal(confirmed.summary.scope.excludedOtherCompanyRows,1);assert.equal(confirmed.production_accepted,false);assert.equal(confirmed.summary.businessCertified,false);
+for(const patch of [{sourceContentHash:'0'.repeat(64)},{company:'TSP'},{sourceRows:[2,2]},{sourceRows:[3]},{sourceRows:[5]},{sourceRows:[999]}])assert.throws(()=>buildExpenseSnapshots({...approvalSource,companyConfirmations:[{...confirmation,...patch}]},['2026-02'],'2026-09-28'),/CONFIRMATION/);
+const changed=JSON.parse(JSON.stringify(approvedSource));changed.values[1][3]=11;assert.throws(()=>buildExpenseSnapshots(changed,['2026-02'],'2026-09-28'),/CONFIRMATION/);
+assert.notEqual(confirmed.content_hash,buildExpenseSnapshots(approvalSource,['2026-02'],'2026-09-28')[0].content_hash);
 // Exercise the actual UI comparison functions, including cross-year and incomplete baselines.
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
 const cards=new Map(),context={ceoCard:(_,month)=>cards.get(month)};vm.createContext(context);
