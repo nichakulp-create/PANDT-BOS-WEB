@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),now=Date.parse('2026-09-28T10:00:00Z');
 class Clock extends Date {static now(){return now;}}
-const state={reads:{},cards:[],history:[],revenue:[],expenses:[],balances:[]};
+const state={reads:{},cards:[],history:[],revenue:[],expenses:[],balances:[],domains:[]};
 const ctx={state,Date:Clock,ceoScope:{company:'DEMO',month:'2026-09'},ceoRows:()=>[],ceoReady:c=>c.production_accepted===true,ageDays:v=>Math.floor((now-Date.parse(v))/86400000)};
 vm.createContext(ctx);vm.runInContext(html.slice(html.indexOf('  function ceoSourceHealth('),html.indexOf('  function ceoReadinessView(')),ctx);
 const health=key=>ctx.ceoSourceHealth().find(x=>x.key===key);
