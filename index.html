@@ -406,6 +406,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   var STORAGE_KEY='pandt_bos_management_session_v1';
   var state={session:null,user:null,access:null,kpis:null,cards:[],history:[],revenue:[],revenueError:false,expenses:[],expenseError:false,balances:[],balanceError:false,domains:[],domainError:false,issues:[],actions:[],decisions:[],page:'dashboard',loading:false,loadError:false,requestEpoch:0,reads:{}};
   var snapshotRefresh={enabled:false,timer:null,nextAt:null};
+  var sessionRefresh=null;
   var pageInfo={
     dashboard:['ภาพรวมผู้บริหาร','มองสถานะธุรกิจ ประเด็น Action และ Decision ในหน้าจอเดียว'],
     issues:['ประเด็นข้อมูล','รายการข้อมูลที่ยังไม่พร้อมหรือควรตรวจสอบก่อนใช้ตัดสินใจ'],
@@ -437,7 +438,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   function saveSession(s){state.session=s;sessionStorage.setItem(STORAGE_KEY,JSON.stringify(s));}
   function clearSession(){
     snapshotRefresh.enabled=false;clearTimeout(snapshotRefresh.timer);snapshotRefresh.timer=null;snapshotRefresh.nextAt=null;state.reads={};
-    state.requestEpoch++;state.session=null;state.user=null;state.access=null;
+    state.requestEpoch++;sessionRefresh=null;state.session=null;state.user=null;state.access=null;
     state.kpis=null;state.cards=[];state.history=[];state.issues=[];state.actions=[];state.decisions=[];state.loadError=false;
     evidenceCache.clear();revenueCache.clear();expenseCache.clear();expenseHistoryCache.clear();balanceCache.clear();domainCache.clear();state.revenue=[];state.revenueError=false;state.expenses=[];state.expenseError=false;state.balances=[];state.balanceError=false;state.domains=[];state.domainError=false;ceoScope={month:'',company:''};sessionStorage.removeItem(STORAGE_KEY);
     if($('ceoDetail').open)$('ceoDetail').close();$('ceoDetailBody').replaceChildren();$('view').replaceChildren();setBusy(false);
@@ -478,28 +479,52 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     return raw?('เข้าสู่ระบบไม่สำเร็จ: '+raw):'เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่';
   }
   async function authFetch(path,body){
-    var res=await fetch(SUPABASE_URL+path,{method:'POST',headers:headers(false),body:JSON.stringify(body),credentials:'omit'});
-    return parseResponse(res);
+    return requestJson(SUPABASE_URL+path,{method:'POST',headers:headers(false),body:JSON.stringify(body),credentials:'omit'});
+  }
+  // Keep the deadline active through body consumption, not only response headers.
+  async function requestJson(url,options){
+    var controller=new AbortController(),timedOut=false;
+    var timer=setTimeout(function(){timedOut=true;controller.abort();},20000);
+    try{return await parseResponse(await fetch(url,Object.assign({},options,{signal:controller.signal})));}
+    catch(err){
+      if(timedOut){var timeout=new Error('การเชื่อมต่อใช้เวลานานเกิน 20 วินาที กรุณาลองอีกครั้ง');timeout.code='REQUEST_TIMEOUT';throw timeout;}
+      throw err;
+    }finally{clearTimeout(timer);}
   }
   async function refresh(){
     if(!state.session||!state.session.refresh_token)throw new Error('ไม่มี refresh token');
-    var epoch=state.requestEpoch;
-    var data=await authFetch('/auth/v1/token?grant_type=refresh_token',{refresh_token:state.session.refresh_token});
-    if(epoch!==state.requestEpoch)throw new Error('เซสชันเปลี่ยนแล้ว กรุณาเข้าสู่ระบบใหม่');
-    var next={access_token:data.access_token,refresh_token:data.refresh_token,user:data.user||state.user};
-    saveSession(next);state.user=next.user;return next;
+    if(sessionRefresh)return sessionRefresh;
+    var epoch=state.requestEpoch,token=state.session.refresh_token;
+    var pending=(async function(){
+      var data=await authFetch('/auth/v1/token?grant_type=refresh_token',{refresh_token:token});
+      if(epoch!==state.requestEpoch)throw new Error('เซสชันเปลี่ยนแล้ว กรุณาเข้าสู่ระบบใหม่');
+      if(!data||!data.access_token||!data.refresh_token)throw new Error('ข้อมูลต่ออายุเซสชันไม่ครบ กรุณาเข้าสู่ระบบใหม่');
+      var next={access_token:data.access_token,refresh_token:data.refresh_token,user:data.user||state.user};
+      saveSession(next);state.user=next.user;return next;
+    })();
+    sessionRefresh=pending;
+    try{return await pending;}finally{if(sessionRefresh===pending)sessionRefresh=null;}
   }
   async function api(path,opt,retry){
     opt=opt||{}; retry=retry!==false;
-    var controller=new AbortController(),timer=setTimeout(function(){controller.abort();},20000);
-    var res;try{res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+    var epoch=state.requestEpoch,token=state.session&&state.session.access_token;
+    try{
+      var result=await requestJson(SUPABASE_URL+'/rest/v1/'+path,{
       method:opt.method||'GET',
       headers:Object.assign(headers(true),opt.headers||{}),
       body:opt.body===undefined?undefined:JSON.stringify(opt.body),
-      credentials:'omit',signal:controller.signal
-    });}finally{clearTimeout(timer);}
-    if(res.status===401&&retry){await refresh();return api(path,opt,false);}
-    return parseResponse(res);
+      credentials:'omit'
+      });
+      if(epoch!==state.requestEpoch)throw new Error('เซสชันเปลี่ยนแล้ว กรุณาเข้าสู่ระบบใหม่');
+      return result;
+    }catch(err){
+      if(epoch!==state.requestEpoch)throw new Error('เซสชันเปลี่ยนแล้ว กรุณาเข้าสู่ระบบใหม่');
+      if(err.status!==401||!retry)throw err;
+      // A delayed 401 can arrive after a sibling has already rotated the token.
+      if(state.session&&state.session.access_token===token)await refresh();
+      if(epoch!==state.requestEpoch)throw new Error('เซสชันเปลี่ยนแล้ว กรุณาเข้าสู่ระบบใหม่');
+      return api(path,opt,false);
+    }
   }
   async function audit(eventType,detail){
     try{
@@ -550,8 +575,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
   }
   async function updateRecoveredPassword(password){
     if(!state.session||!state.session.access_token||!state.session.recovery)throw new Error('ไม่พบ Recovery Session');
-    var res=await fetch(SUPABASE_URL+'/auth/v1/user',{method:'PUT',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+state.session.access_token,'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({password:password}),credentials:'omit'});
-    return parseResponse(res);
+    return requestJson(SUPABASE_URL+'/auth/v1/user',{method:'PUT',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+state.session.access_token,'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({password:password}),credentials:'omit'});
   }
   async function login(email,password){
     var data=await authFetch('/auth/v1/token?grant_type=password',{email:email,password:password});
