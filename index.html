@@ -969,12 +969,31 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
       return {key:s.key,label:s.label,id:s.id,cards:cards,expected:s.expected,missing:missing,read:read,oldest:oldest,tone:tone,status:label};
     });
   }
+  function salesReconciliation(c){
+    var s=c&&c.summary||{},integer=function(v){return Number.isSafeInteger(v)?v:null;};
+    var included=integer(s.knownSubtotalMinor),review=integer(s.reviewKnownMinor),register=integer(s.knownRegisterMinor);
+    var count=integer(s.rows),valued=integer(s.valuedRows),held=integer(s.reviewRows),unknown=integer(s.unknownAmountRows);
+    // A missing amount is never silently converted to zero for a nonempty group.
+    if(included===null&&valued===0)included=0;if(review===null&&held===0)review=0;
+    var value=c&&c.value_numeric!=null?Number(c.value_numeric):NaN,cardMinor=Number.isFinite(value)?Math.round(value*100):null;
+    var counts=count!==null&&valued!==null&&held!==null&&unknown!==null&&count>=0&&valued>=0&&held>=0&&unknown>=0&&unknown<=held&&valued+held===count;
+    var comparable=included!==null&&review!==null&&register!==null;
+    var matches=comparable&&included+review===register&&(valued===0?c.value_numeric===null:cardMinor===included);
+    var status=!c?'ยังไม่มี Snapshot':!counts?'จำนวนรายการไม่ครบ':count===0?'ไม่มีรายการในงวด':unknown>0?'มีมูลค่าที่ไม่ทราบ':!comparable?'ยอดกระทบยังไม่ครบ':!matches?'ยอดกระทบไม่ตรง':held>0?'ยอดกระทบตรง · มีรายการรอตรวจ':'ยอดกระทบตรง';
+    return {included:included,review:review,register:register,count:count,held:held,unknown:unknown,status:status,tone:!c?'missing':!counts||comparable&&!matches?'risk':count===0||unknown>0||!comparable||held>0?'warn':'good'};
+  }
+  function ceoSalesReconciliation(){
+    var year=ceoScope.month.slice(0,4),cards=state.revenue.filter(function(c){return c.company===ceoScope.company&&c.card_id==='finSales'&&c.month.slice(0,4)===year;}).sort(function(a,b){return a.month.localeCompare(b.month);});
+    var money=function(v){return v===null?'—':(v/100).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});};
+    if(!cards.length)return '<h3>กระทบยอดขายรายเดือน</h3><p>ยังไม่มี Snapshot ยอดขายของบริษัทและปีที่เลือก</p>';
+    return '<h3>กระทบยอดขายรายเดือน · '+esc(year)+'</h3><p>ยอดที่นำมารวม + ยอดที่ทราบของรายการรอตรวจ = ยอดที่ทราบทั้งหมดใน Snapshot · ก่อน VAT · ไม่ใช่การอ่านชีตใหม่หรือยืนยันปิดงวด</p>'+(state.revenueError||state.loadError?'<div class="ctrl-note">อ่านข้อมูลรอบล่าสุดไม่สำเร็จ ตารางนี้ใช้ชุดก่อนหน้าที่โหลดได้</div>':'')+'<div class="tablewrap"><table class="ceo-sales-reconcile"><thead><tr><th>เดือน / อ่านต้นทาง</th><th>นำมารวม (บาท)</th><th>รอตรวจที่ทราบ (บาท)</th><th>รวมที่ทราบ (บาท)</th><th>ผลตรวจ / รายการ</th></tr></thead><tbody>'+cards.map(function(c){var r=salesReconciliation(c);return '<tr data-sales-month="'+esc(c.month)+'"><td><button type="button" class="btn" data-sales-audit-month="'+esc(c.month)+'">'+esc(ceoMonthLabel(c.month))+' ↗</button><br><small>'+ceoReadTime(c.source_read_at)+'</small></td><td>'+money(r.included)+'</td><td>'+money(r.review)+'</td><td>'+money(r.register)+'</td><td>'+ceoStatusChip(r.tone,r.status)+'<br><small>'+(r.count===null?'ไม่ทราบจำนวน':r.count+' รายการ')+' · รอตรวจ '+(r.held===null?'—':r.held)+' · ไม่ทราบมูลค่า '+(r.unknown===null?'—':r.unknown)+'</small>'+(r.held>0?'<br><button type="button" class="btn" data-sales-audit-month="'+esc(c.month)+'" data-sales-review="1">ดูรายการรอตรวจ ↗</button>':'')+'</td></tr>';}).join('')+'</tbody></table></div>';
+  }
   function ceoReadinessView(){
     var health=ceoSourceHealth();
     var html='<h3>การอัปเดตข้อมูล · '+esc(ceoScope.company)+' / '+esc(ceoMonthLabel(ceoScope.month))+'</h3><div class="ctrl-note">รีเฟรชอ่าน Snapshot ที่นำเข้าไว้แล้ว วันอ่านต้นทางไม่เปลี่ยนตามเวลาเปิดเว็บ · ยังไม่มีการซิงก์ Google Sheets อัตโนมัติที่ยืนยันผลแล้ว</div>';
     html+='<div class="buttons"><button type="button" class="btn primary" data-readiness-refresh="1"'+(state.loading?' disabled':'')+'>อ่าน Snapshot อีกครั้ง</button><label class="snapshot-auto"><input type="checkbox" id="ceoAutoRefresh"'+(snapshotRefresh.enabled?' checked':'')+'> อ่าน Snapshot ทุก 5 นาทีในหน้านี้</label></div><p class="small muted">หยุดพักเมื่อซ่อนแท็บ เปิดรายละเอียด หรือกรอกแบบฟอร์ม · ปิดเมื่อออกจากระบบ · ไม่แก้ข้อมูลต้นทาง</p>';
     html+='<div class="tablewrap"><table class="ceo-source-health"><thead><tr><th>ชุดข้อมูล</th><th>สถานะการอ่าน</th><th>ตรวจผ่านเว็บล่าสุด</th><th>อ่านต้นทางเก่าสุดในเดือนนี้</th></tr></thead><tbody>'+health.map(function(s){return '<tr data-source-health="'+s.key+'"><td>'+esc(s.label)+'<br><small>'+s.cards.length+' ชุดในเดือนนี้'+(s.expected?' · พบรายการหลัก '+(s.expected.length-s.missing.length)+' / '+s.expected.length:'')+'</small></td><td>'+ceoStatusChip(s.tone,s.status)+(s.read.status==='error'?'<br><small>ยังแสดงชุดก่อนหน้าเท่าที่มี</small>':'')+'</td><td>'+ceoReadTime(s.read.checkedAt)+'<br><small>อ่านสำเร็จ '+ceoReadTime(s.read.successAt)+'</small></td><td>'+ceoReadTime(s.oldest)+'</td></tr>';}).join('')+'</tbody></table></div>';
-    return html+'<p>พบ Snapshot ไม่ได้ยืนยันว่ารายการครบหรือปิดงวดแล้ว ต้องตรวจหลักฐานและการรับรองแยกกัน</p><button type="button" class="btn" data-detail-tab="parts">เปิดรายการที่ต้องตรวจ ↗</button>';
+    return html+'<p>พบ Snapshot ไม่ได้ยืนยันว่ารายการครบหรือปิดงวดแล้ว ต้องตรวจหลักฐานและการรับรองแยกกัน</p>'+ceoSalesReconciliation()+'<button type="button" class="btn" data-detail-tab="parts">เปิดรายการที่ต้องตรวจ ↗</button>';
   }
   function ceoReadinessQueue(){
     var names={finSales:'ยอดขาย Folow',forecast:'Forecast',orderRegister:'ใบสั่งซื้อในเดือน',orders:'ออเดอร์ค้างส่ง',issue:'จ่าย FG',expenses:'Monthly expenses',material:'วัตถุดิบ',tooling:'Tooling',wip:'คงเหลือ PC',fac2:'คงเหลือ Fac2',qaWip:'WIP QA',qaFinal:'QA Final',fg:'สินค้าสำเร็จรูป'};
@@ -1506,6 +1525,7 @@ body.ceo-dashboard .ceo-fullscreen{display:inline-flex;align-items:center}
     if(b.dataset.domainDate){domainFilters().date=b.dataset.domainDate;domainFilters().page=0;drawCeoDetail();return;}
     if(b.dataset.domainReset){detailState.domainFilters=null;drawCeoDetail();return;}
     if(b.dataset.readinessRefresh){loadAll().catch(function(){toast('อ่าน Snapshot ไม่สำเร็จ · กรุณาตรวจสถานะชุดข้อมูล');});return;}
+    if(b.dataset.salesAuditMonth){var salesMonth=b.dataset.salesAuditMonth;if(!state.revenue.some(function(c){return c.company===ceoScope.company&&c.month===salesMonth&&c.card_id==='finSales';}))return;ceoScope.month=salesMonth;render();openCeoDetail('finSales');detailState.tab='parts';detailState.filters={query:'',customer:'',status:b.dataset.salesReview?'REVIEW':'',timing:'',sort:'due',page:0};drawCeoDetail();loadCeoEvidence(false);return;}
     if(b.dataset.ceoPanel!==undefined){ceoPanelIndex=Number(b.dataset.ceoPanel);syncCeoPanels();return;}
     if(b.dataset.expenseMonth){if(!ceoMonths().includes(b.dataset.expenseMonth))return;ceoScope.month=b.dataset.expenseMonth;render();openCeoDetail('expenses');toast('เปลี่ยนเดือนภาพรวมเป็น '+ceoMonthLabel(ceoScope.month));return;}
     if(b.dataset.expenseItem!==undefined){openCeoDetail('expenses');detailState.tab='parts';detailState.expenseFilters={query:'',mainType:b.dataset.expenseMain||'',category:b.dataset.expenseCategory||'',item:b.dataset.expenseItem,status:'',page:0};drawCeoDetail();return;}

@@ -41,6 +41,7 @@ jobs:
         run: |
           node tests/ceo-browser.cjs
           node tests/domain-browser.cjs
+          node tests/sales-reconciliation-browser.cjs
       - name: Upload synthetic browser evidence
         if: always()
         uses: actions/upload-artifact@v4
