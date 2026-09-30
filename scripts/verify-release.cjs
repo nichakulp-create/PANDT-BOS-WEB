@@ -7,3 +7,4 @@ for(const marker of ['P&T BOS Management','AI Manager','function ceoDashboard','
 assert.ok(!/service[._-]role|SUPABASE_SERVICE_ROLE|sb_secret_/i.test(html),'server credential marker in client');
 for(const test of ['revenue-model.cjs','order-followup.cjs','expense-model.cjs','balance-model.cjs','data-readiness.cjs','evidence-explanation.cjs','expense-review.cjs','domain-model.cjs','request-resilience.cjs'])execFileSync(process.execPath,[path.join(root,'tests',test)],{stdio:'inherit'});
 console.log('PASS: static application release gate');
+execFileSync(process.execPath,[path.join(root,'tests/sales-sync.cjs')],{stdio:'inherit'});

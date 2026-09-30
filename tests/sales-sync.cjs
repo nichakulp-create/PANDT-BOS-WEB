@@ -1,0 +1,28 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const {planSalesSync,importSql}=require('../lib/sales-sync.cjs');
+const {buildSalesSnapshots}=require('../lib/revenue-model.cjs');
+const source={sourceId:'DEMO',tab:'Folow',readAt:'2026-09-29T10:00:00Z',range:'A1:K3',values:[['DATE','INV.','Customer','Qty','Net Total','Value Added Tax 7%','Grand Total','บริษัท','หมายเหตุ','Month (no.)','Year'],['2026-09-29','DEMO-1','A',1,100,7,107,'P&T','',9,2026],['2026-09-30','DEMO-2','A',1,200,14,214,'P&T','',9,2026]]};
+const base=buildSalesSnapshots(source,['2026-09'],'2026-09-29').map(s=>({...s,id:'11111111-1111-4111-8111-111111111111'}));
+assert.equal(base[0].value_numeric,100);
+const reread={...source,readAt:'2026-09-29T11:00:00Z'};
+assert.equal(planSalesSync(reread,base,['2026-09'],'2026-09-29').changed.length,0,'timestamp-only reread must not create a new snapshot');
+const next={...source,readAt:'2026-09-30T10:00:00Z'};
+const plan=planSalesSync(next,base,['2026-09'],'2026-09-30');assert.equal(plan.changed.length,1);assert.equal(plan.report[0].delta,200);assert.equal(plan.changed[0].snapshot.production_accepted,false);
+const applied=plan.changed.map(x=>({...x.snapshot,id:'22222222-2222-4222-8222-222222222222'}));assert.equal(planSalesSync(next,applied,['2026-09'],'2026-09-30').changed.length,0);
+assert.throws(()=>planSalesSync(source,applied,['2026-09'],'2026-09-30'),/OLDER/);
+assert.throws(()=>planSalesSync({...next,values:next.values.slice(0,2)},base,['2026-09'],'2026-09-30'),/SHRANK/);
+assert.throws(()=>planSalesSync(next,[base[0],base[0]],['2026-09'],'2026-09-30'),/DUPLICATE/);
+const sql=importSql(plan);assert.match(sql,/SALES_BASELINE_CHANGED/);assert.match(sql,/on conflict/);assert.ok(!/delete from|update public|grant |alter table/i.test(sql));
+// Untrusted source text must remain a SQL string, even with quotes and a DO delimiter.
+plan.changed[0].snapshot.rows[0].note="x'; end $bos_sales$; drop table example; --";
+const safe=importSql(plan);assert.match(safe,/x''; end \$bos_sales\$/);assert.ok(safe.includes('DO $_bos_sales$'));
+const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8'),ctx={};vm.createContext(ctx);vm.runInContext(html.slice(html.indexOf('  function salesReconciliation('),html.indexOf('  function ceoSalesReconciliation(')),ctx);
+const check=ctx.salesReconciliation;
+assert.equal(check(base[0]).status,'ยอดกระทบตรง · มีรายการรอตรวจ');assert.equal(check(applied[0]).status,'ยอดกระทบตรง');
+assert.equal(check({...applied[0],value_numeric:999}).tone,'risk');
+assert.equal(check({...applied[0],summary:{...applied[0].summary,knownRegisterMinor:999}}).tone,'risk');
+assert.equal(check({...applied[0],summary:{...applied[0].summary,knownSubtotalMinor:null}}).status,'ยอดกระทบยังไม่ครบ');
+assert.equal(check({...base[0],summary:{...base[0].summary,unknownAmountRows:1,reviewKnownMinor:null}}).status,'มีมูลค่าที่ไม่ทราบ');
+assert.equal(check(null).status,'ยังไม่มี Snapshot');
+console.log('PASS: incremental sales planning, date rollover, stale/truncated inputs, replay, SQL quoting and reconciliation failures');
