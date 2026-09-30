@@ -81,6 +81,7 @@ if(require.main===module)(async()=>{
     for(const [width,height] of [[1366,768],[1440,900],[1920,1080],[1280,720],[1366,600],[1024,768]]){
       await page.setViewportSize({width,height});
       await page.screenshot({path:path.join(artifacts,`dashboard-${width}x${height}.png`)});
+      if(process.env.BOS_VISUAL_REVIEW==='1'&&width===1366&&height===768)console.log('BOS_VISUAL_dashboard:'+(await page.screenshot({type:'jpeg',quality:45})).toString('base64'));
       const dims=await page.evaluate(()=>({w:innerWidth,h:innerHeight,sw:document.documentElement.scrollWidth,sh:document.documentElement.scrollHeight,kpis:[...document.querySelectorAll('.ctrl-kpi')].map(e=>e.getBoundingClientRect().y),panels:[...document.querySelectorAll('.ctrl-panel')].map(e=>({name:e.className,scroll:e.scrollHeight,height:e.clientHeight,bottom:e.getBoundingClientRect().bottom}))}));
       assert.equal(dims.sw,width);assert.equal(dims.sh,height);assert.equal(new Set(dims.kpis).size,1);assert.equal(dims.kpis.length,8);assert.ok(await page.locator('.ctrl-kpi').evaluateAll(els=>els.every(e=>e.scrollHeight<=e.clientHeight+1)),'KPI content clipped '+JSON.stringify(await page.locator('.ctrl-kpi').evaluateAll(els=>els.map(e=>({id:e.dataset.ceoDetail,scroll:e.scrollHeight,height:e.clientHeight,children:[...e.children].map(c=>({cls:c.className.baseVal||c.className,h:c.getBoundingClientRect().height}))})))));assert.equal(dims.panels.length,6);
       const nested=await page.locator('.ctrl-priorities, .ctrl-confidence-main, .ctrl-cost-chart, .ctrl-orders-summary').evaluateAll(els=>els.map(e=>({name:e.className,height:e.clientHeight,scroll:e.scrollHeight})));
@@ -89,6 +90,7 @@ if(require.main===module)(async()=>{
       await page.locator('.ctrl-kpi[data-ceo-detail="workingCapital"]').click();
       const box=await page.locator('#ceoDetail').boundingBox();const expectedWidth=width>=1280?width*.75:width;assert.ok(Math.abs(box.width-expectedWidth)<2);assert.ok(Math.abs(box.x-(width-expectedWidth))<2);
       await page.screenshot({path:path.join(artifacts,`drawer-${width}x${height}.png`)});
+      if(process.env.BOS_VISUAL_REVIEW==='1'&&width===1366&&height===768)console.log('BOS_VISUAL_drawer:'+(await page.screenshot({type:'jpeg',quality:45})).toString('base64'));
       await page.keyboard.press('Escape');results.push({viewport:`${width}x${height}`,bodyScroll:false,drawerWidth:box.width});
     }
     await page.setViewportSize({width:1366,height:768});
