@@ -11,3 +11,41 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify arithmetic, scope and application syntax
         run: node scripts/verify-release.cjs
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test tools
+        run: |
+          npm install --prefix "$RUNNER_TEMP/bos-browser" --no-audit --no-fund playwright@1.58.2 agent-browser@0.20.0
+          node "$RUNNER_TEMP/bos-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Verify login screen visually
+        env:
+          NODE_PATH: ${{ runner.temp }}/bos-browser/node_modules
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/bos-http.log 2>&1 &
+          export AGENT_BROWSER_EXECUTABLE_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          "$RUNNER_TEMP/bos-browser/node_modules/.bin/agent-browser" open http://127.0.0.1:4173
+          "$RUNNER_TEMP/bos-browser/node_modules/.bin/agent-browser" snapshot -i
+          "$RUNNER_TEMP/bos-browser/node_modules/.bin/agent-browser" screenshot /tmp/bos-login.png
+          "$RUNNER_TEMP/bos-browser/node_modules/.bin/agent-browser" close
+      - name: Verify synthetic dashboard and department interactions
+        env:
+          NODE_PATH: ${{ runner.temp }}/bos-browser/node_modules
+          BOS_SCREENSHOTS: ${{ runner.temp }}/bos-screenshots
+        run: |
+          node tests/ceo-browser.cjs
+          node tests/domain-browser.cjs
+      - name: Upload synthetic browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-browser-evidence
+          path: |
+            /tmp/bos-login.png
+            ${{ runner.temp }}/bos-screenshots
+          retention-days: 7
