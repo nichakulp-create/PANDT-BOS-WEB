@@ -37,6 +37,7 @@ jobs:
         env:
           NODE_PATH: ${{ runner.temp }}/bos-browser/node_modules
           BOS_SCREENSHOTS: ${{ runner.temp }}/bos-screenshots
+          BOS_VISUAL_REVIEW: '1'
         run: |
           node tests/ceo-browser.cjs
           node tests/domain-browser.cjs
